@@ -1,0 +1,21 @@
+﻿
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/RoadEventsProject.styles.css" asp-append-version="true" />
+</head>
+<body style="background: url('/images/2.jpg') left no-repeat, #5589cf right; background-size: 50% 100%, 50% 100%; background-position: left center, right center;">
+    <h1>Панель управління</h1>
+    <div>
+        <a asp-action="Profile" class="btn btn-primary">Перегляд свого акаунту</a>
+        <a asp-action="ApplicationForm" class="btn btn-success">Заповнити заявку</a>
+        <form asp-action="Logout" method="post" class="d-inline">
+            <button type="submit" class="btn btn-danger">Вихід</button>
+        </form>
+    </div>
+</body>
+
+
+
+

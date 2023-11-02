@@ -1,0 +1,22 @@
+﻿.ima {
+    background: url('/images/3.jpg');
+    background-size: 100% 100%; /* Розтягнути фон, щоб заповнити блок */
+    /*background-position: 0 50px; /* Вирівняти фон по центру */
+    height: 90vh; /* Зробити блок на висоту всього вікна браузера */
+    width: 100%; /* Встановити ширину на половину вікна */
+    float: right;
+}
+
+
+
+.footer {
+    clear: both; /* Забезпечити, щоб футер був під усіма іншими елементами */
+    /* Додаткові стилі для вашого футера */
+}
+
+im {
+    background: url('/images/4.jpg');
+    background-size: 100% 100%;
+    background-size: cover; /* Розтягнути фон, щоб заповнити весь <body> */
+    background-position: center; /* Вирівняти фон по центру */
+}

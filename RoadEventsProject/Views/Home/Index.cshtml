@@ -1,0 +1,99 @@
+﻿@model RoadEventsProject.Models.LoginUserModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Page Title</title>
+    <link rel="stylesheet" href="~/RoadEventsProject.styles.css" asp-append-version="true" />
+    <style>
+        .square {
+            background-color: #9aa0a6;
+            display: inline-block;
+            padding: 10px; 
+            margin: 0;
+            border-radius: 15px;
+        }
+
+            .square h1 {
+                color: white;
+                margin: 0;
+            }
+
+        .button-container {
+            height: 50px; 
+            width:100px;
+        }
+        .custom-button {
+            background-color: #071952;
+            color: white;
+            font-size:16px;
+        }
+
+        .squareBlock {
+            background-color: rgb(65,105,225,0.3); /* Розмите біле фон */
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px); /* Розмиття */
+        }
+
+        .text-blue {
+            color: white; /* Встановлює колір тексту на синій */
+            text-shadow: 2px 2px 2px black, 0 2px 2px black, -2px 0 2px black, 0 -2px 2px black; /* Встановлює білу обводку тексту */
+
+        }
+
+        .squareBlockText {
+            background-color: rgba(65, 105, 225, 0.3); /* Розмите біле фон */
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px); /* Розмиття */
+            width: 100%; /* Зробити блок на повну ширину сторінки */
+        }
+
+    </style>
+</head>
+<body style="background: url('/images/12.jpg');">
+    <div>
+    <div class="squareBlockText" style=" margin-top:10%; width: 100%; ">
+        <div class="text-center" style="margin-top:10px">
+            <div>
+                <h1 class="content_style text-blue">Cервіс моніторингу подій</h1>
+            </div>
+            <h2 class="content_style text-blue" style="font-size:25px;">Об'єднуймося для безпечних доріг</h2>
+        </div>
+    </div>
+    <div class="squareBlock" style=" margin-left:28%; margin-top:5%; width:45%">
+        
+        <div style="font-size:20px">
+            <form asp-action="Index" method="post" class="text-center" style="width: 60%; margin-left: 20%; margin-top:25px">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <input asp-for="UserName" class="form-control" placeholder="Логін" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="form-group" style="margin-top:10px">
+                    <input asp-for="Password" name="Password" type="password" class="form-control" placeholder="Пароль" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:10px; font-size:20px">Увійти</button>
+                
+                <div style="margin-top:10px">
+                        <p style="color: #bbccdd; font-size:16px">
+                        Ще не маєте акаунту?
+                            <a asp-controller="Home" asp-action="Register" style="color: #5085a5">Зареєструватися</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+</body>
+</html>

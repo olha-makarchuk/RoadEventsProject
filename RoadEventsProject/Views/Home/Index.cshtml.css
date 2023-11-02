@@ -1,0 +1,11 @@
+﻿
+.content .text-center {
+    text-align: center; /* Ліве вирівнювання тексту */
+}
+
+.content_style{
+    font-size:40px;
+    font-weight:bold;
+    text-align:center;
+}
+
