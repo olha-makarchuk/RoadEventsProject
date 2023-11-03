@@ -46,7 +46,7 @@ public partial class RoadEventsContext : DbContext
 
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-      => optionsBuilder.UseSqlServer("Server=OLHA_MAKARCHUK\\SQLEXPRESS;Database=RoadEvents;User=UserNew;Password=12345;Trusted_Connection=True;Encrypt=False");
+      => optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_aa0c4f_olha01;User Id=db_aa0c4f_olha01_admin;Password=olhanator0108;");
       
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

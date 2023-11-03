@@ -1,0 +1,169 @@
+﻿@model RoadEventsProject.Models.Event
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+        /* Стилі для лівої (чорної) колонки */
+        .left-column {
+            margin:0;
+            float: left;
+            width: 20%;
+            height: 95vh; /* 100% висоти вікна браузера */
+            background-color: black;
+            color: white;
+        }
+
+        /* Стилі для правої (синьої) колонки */
+        .right-column {
+            margin: 0;
+            float: left;
+            width: 60%;
+            height: 95vh;
+            background-color: white;
+            color: black;
+        }
+
+        /* Заголовок */
+        .column-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Роздільник між елементами */
+        .divider {
+            height: 0.5px;
+            width: 80%;
+            background-color: white;
+            margin: 15px;
+        }
+
+        /* Очистка float для правильного вирівнювання */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .btn {
+            display: block;
+            margin-bottom: 2px;
+            margin-left: 2px;
+        }
+        .aspforms {
+            font-size: 16px;
+            font-weight: bold;
+            color: #919191;
+            text-align:left;
+        }
+
+        .square {
+            background-color: #9aa0a6;
+            display: inline-block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+        }
+
+            .square h1 {
+                color: white;
+                margin: 0;
+            }
+
+        .button-container {
+            height: 50px;
+            width: 100px;
+        }
+
+        .custom-button {
+            background-color: #071952;
+            color: white;
+            font-size: 16px;
+        }
+
+        .squareBlock {
+            background-color: rgb(65,105,225,0.3); /* Розмите біле фон */
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px); /* Розмиття */
+        }
+
+        .text-blue {
+            color: white; /* Встановлює колір тексту на синій */
+            text-shadow: 2px 2px 2px black, 0 2px 2px black, -2px 0 2px black, 0 -2px 2px black; /* Встановлює білу обводку тексту */
+        }
+
+        .squareBlockText {
+            background-color: rgba(65, 105, 225, 0.3); /* Розмите біле фон */
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px); /* Розмиття */
+            width: 100%; /* Зробити блок на повну ширину сторінки */
+        }
+    </style>
+</head>
+<body>
+    <div class="left-column">
+        <div style="padding-left:25px; font-size:24px; color:white; font-weight:bold; margin-top:30px;">
+            <p>Заголовок</p>
+        </div>
+
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="some" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="FillInApplication" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="AllApplication" class="aspforms btn">ВСІ ЗАЯВИ</a>
+        <div class="divider"></div>
+        <form asp-area="" asp-controller="Profile" sp-action="Logout" method="post" class="d-inline">
+            <button type="submit" class="aspforms btn">ВИХІД</button>
+        </form>
+    </div>
+
+    <div class="right-column">
+        <div class="squareBlockText" style=" margin-top:10%; width: 100%; ">
+            <div class="text-center" style="margin-top:10px">
+                <div>
+                    <h1 class="content_style text-blue">Cервіс моніторингу подій</h1>
+                </div>
+                <h2 class="content_style text-blue" style="font-size:25px;">Об'єднуймося для безпечних доріг</h2>
+            </div>
+        </div>
+        <div class="squareBlock" style=" margin-left:28%; margin-top:5%; width:45%">
+            
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label asp-for="Photo">Фото</label>
+                    <input asp-for="Photo" type="file" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label asp-for="DescriptionEvent">Опис події</label>
+                    <input asp-for="DescriptionEvent" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label asp-for="Region">Регіон</label>
+                    <input asp-for="Region" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label asp-for="CityVillage">Місто/село</label>
+                    <input asp-for="CityVillage" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label asp-for="DateEvent">Дата створення</label>
+                    <input asp-for="DateEvent" type="datetime" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">Зберегти</button>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+</body>
+</html>
