@@ -74,6 +74,8 @@ namespace RoadEventsProject.Controllers
                     {
                         if (user.IdRole == 1)
                         {
+                            Response.Cookies.Append("MyIdCookie", user.IdUser.ToString());
+
                             return RedirectToAction("MainView", "Profile");
                         }
                         if (user.IdRole == 2)

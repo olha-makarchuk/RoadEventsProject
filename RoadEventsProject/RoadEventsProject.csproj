@@ -23,4 +23,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Uploads\Videos\" />
+    <Folder Include="Uploads\Photos\" />
+  </ItemGroup>
+
 </Project>

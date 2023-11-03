@@ -22,7 +22,6 @@
             float: left;
             width: 60%;
             height: 95vh;
-            background-color: white;
             color: black;
         }
 
@@ -93,7 +92,7 @@
         }
 
         .text-blue {
-            color: white; /* Встановлює колір тексту на синій */
+            color: white;
             text-shadow: 2px 2px 2px black, 0 2px 2px black, -2px 0 2px black, 0 -2px 2px black; /* Встановлює білу обводку тексту */
         }
 
@@ -104,11 +103,17 @@
             margin: 0;
             border-radius: 15px;
             backdrop-filter: blur(10px); /* Розмиття */
-            width: 100%; /* Зробити блок на повну ширину сторінки */
+            width: 80%; /* Зробити блок на повну ширину сторінки */
+        }
+
+        .text-border {
+            font-size: 14px;
+            color: white;
+            text-shadow: 1px 1px 1px black, 0 1px 1px black, -1px 0 1px black, 0 -1px 1px black; /* Встановлює білу обводку тексту */
         }
     </style>
 </head>
-<body>
+<body style="background: url('/images/16.jpg');background-size: 100% 100%;">
     <div class="left-column">
         <div style="padding-left:25px; font-size:24px; color:white; font-weight:bold; margin-top:30px;">
             <p>Заголовок</p>
@@ -126,44 +131,97 @@
         </form>
     </div>
 
-    <div class="right-column">
-        <div class="squareBlockText" style=" margin-top:10%; width: 100%; ">
+    <div class="right-column" style="margin-left:50px">
+        <div class="squareBlockText" style=" margin-top:5%; width: 100%; ">
             <div class="text-center" style="margin-top:10px">
                 <div>
-                    <h1 class="content_style text-blue">Cервіс моніторингу подій</h1>
+                    <h1 class="content_style text-blue">Заповніть заяву:</h1>
                 </div>
-                <h2 class="content_style text-blue" style="font-size:25px;">Об'єднуймося для безпечних доріг</h2>
             </div>
         </div>
-        <div class="squareBlock" style=" margin-left:28%; margin-top:5%; width:45%">
-            
-            <form asp-action="Create" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label asp-for="Photo">Фото</label>
-                    <input asp-for="Photo" type="file" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label asp-for="DescriptionEvent">Опис події</label>
-                    <input asp-for="DescriptionEvent" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label asp-for="Region">Регіон</label>
-                    <input asp-for="Region" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label asp-for="CityVillage">Місто/село</label>
-                    <input asp-for="CityVillage" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label asp-for="DateEvent">Дата створення</label>
-                    <input asp-for="DateEvent" type="datetime" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary">Зберегти</button>
-            </form>
+        <div class="squareBlock" style=" margin-left:28%; margin-top:3%; width:45%">
 
+            <form asp-action="FillInApplication" method="post" enctype="multipart/form-data" class="text-border">
+
+            <div class="form-group">
+                <label for="Photo">Фото:</label>
+                <input type="file" id="Photo" name="Photo" class="form-control" accept="image/*">
+                <span asp-validation-for="Photo" class="text-danger"></span>
+            </div>
+                <div class="form-group">
+                    <label for="Video">Відео:</label>
+                    <input type="file" id="Video" name="Video" class="form-control" accept="video/*">
+                    <span asp-validation-for="Video" class="text-danger"></span>
+                </div>
+
+            <div class="form-group">
+                <label for="DescriptionEvent">Опис:</label>
+                <textarea id="DescriptionEvent" name="DescriptionEvent" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="DescriptionEvent" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="IdRegion">Область:</label>
+                    <select id="IdRegion" name="IdRegion" class="form-control">
+                    <option value="">Виберіть область</option>
+                    @foreach (var region in ViewBag.Regions)
+                    {
+                        <option value="@region.IdRegion">@region.NameRegion</option>
+                    }
+                </select>
+                <span asp-validation-for="IdRegion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="IdCityVillage">Місто/Село:</label>
+                <select id="IdCityVillage" name="IdCityVillage" class="form-control" disabled>
+                    <option value="">Виберіть місто або село</option>
+                </select>
+                <span asp-validation-for="IdCityVillage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                 <label for="DateEvent">Дата та час події:</label>
+                 <input type="datetime-local" asp-for="DateEvent" id="DateEvent" name="DateEvent" class="form-control">
+                 <span asp-validation-for="DateEvent" class="text-danger"></span>
+            </div>
+            <p style="margin-top:5px">*обов'язково завантажте або відео, або фото (або два варіанти одразу)'</p>
+            <button type="submit" class="btn btn-primary" style="text-align:center; margin-top:10px">Надіслати заяву</button>
+                <div asp-validation-summary="All" class="text-danger"></div>
+        </form>
         </div>
     </div>
-
     <div class="clearfix"></div>
 </body>
 </html>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#IdRegion").change(function () {
+                var regionId = $(this).val();
+                if (regionId) {
+                    $.ajax({
+                        url: '/Event/GetCitiesVillages',
+                        data: { regionId: regionId },
+                        type: 'GET',
+                        success: function (data) {
+                            $("#IdCityVillage").prop('disabled', false);
+                            $("#IdCityVillage").empty();
+                            $("#IdCityVillage").append('<option value="">Select City or Village</option>');
+                            $.each(data, function (index, item) {
+                                $("#IdCityVillage").append('<option value="' + item.idCityVillage + '">' + item.nameCityVillage + '</option>');
+                            });
+                        }
+                    });
+                } else {
+                    $("#IdCityVillage").prop('disabled', true);
+                    $("#IdCityVillage").empty();
+                    $("#IdCityVillage").append('<option value="">Select City or Village</option>');
+                }
+            });
+        });
+
+    </script>
+}
+
