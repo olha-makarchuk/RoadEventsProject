@@ -1,0 +1,170 @@
+﻿@model IEnumerable<RoadEventsProject.Models.Data.RoadEvent>
+
+@{
+    ViewData["Title"] = "MyApplication";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .left-column {
+            margin: 0;
+            float: left;
+            width: 20%;
+            height: 95vh;
+            background-color: black;
+            color: white;
+        }
+
+        .right-column {
+            margin: 0;
+            float: left;
+            width: 60%;
+            height: 95vh;
+            background-color: white;
+            color: black;
+        }
+
+        .column-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .divider {
+            height: 0.5px;
+            width: 80%;
+            background-color: white;
+            margin: 15px;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .btn {
+            display: block;
+            margin-bottom: 2px;
+            margin-left: 2px;
+        }
+
+        .aspforms {
+            font-size: 16px;
+            font-weight: bold;
+            color: #919191;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    
+
+    <div class="left-column">
+        <div style="padding-left:25px; font-size:24px; color:white; font-weight:bold; margin-top:30px;">
+            <p>Заголовок</p>
+        </div>
+
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="some" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="FillInApplication" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="Test" class="aspforms btn">ВСІ ЗАЯВИ</a>
+        <div class="divider"></div>
+        <form asp-area="" asp-controller="Profile" sp-action="Logout" method="post" class="d-inline">
+            <button type="submit" class="aspforms btn">ВИХІД</button>
+        </form>
+    </div>
+    <div class="right-column" style="margin-left:10%">
+        <p style="text-align:center; font-weight:bold">Мої заяви</p>
+        <div style="height: 90%; overflow: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <p>Статус заяви</p>
+                        </th>
+                        <th>
+                            <p>Дата</p>
+                        </th>
+                        <th>
+                            <p>Деталі</p>
+                        </th>
+                        <th>
+                            <p>Місце події</p>
+                        </th>
+                        <th>
+                            <p>Зображення</p>
+                        </th>
+                        <th>
+                            <p>Відео</p>
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.IdStatusNavigation.NameStatus)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DateEvent)
+                            </td>
+                            <td>
+                                <div style="width: 200px; word-wrap: break-word;">
+                                    @Html.DisplayFor(modelItem => item.DescriptionEvent)
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.NameCityVillage)
+                            </td>
+                            <td>
+                                @if (item.IdImage != null)
+                                {
+                                    <img width="80" height="60" src="@Html.DisplayFor(modelItem => item.IdImageNavigation.ImageUrl)" alt="Фото">
+                                }
+                                else
+                                { 
+                                    <p>-</p>
+                                }
+                            </td>
+
+                            <td>
+                                @if (item.IdVideo != null)
+                                {
+                                    <video width="80" height="60" controls>
+                                        <source src="@Html.DisplayFor(modelItem => item.IdVideoNavigation.VideoUrl)" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                }
+                                else
+                                {
+                                    <p>-</p>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="clearfix"></div>
+</body>
+</html>
+
+
+
+
+
+

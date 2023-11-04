@@ -69,11 +69,13 @@
         </div>
 
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="some" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
+        <a asp-area="" asp-controller="Profile" asp-action="MainApplication" class="btn aspforms">ГОЛОВНА</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="MyProfile" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
         <div class="divider"></div>
         <a asp-area="" asp-controller="Profile" asp-action="FillInApplication" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="Test" class="aspforms btn">ВСІ ЗАЯВИ</a>
+        <a asp-area="" asp-controller="Profile" asp-action="MyApplication" class="aspforms btn">ВСІ ЗАЯВИ</a>
         <div class="divider"></div>
         <form asp-area="" asp-controller="Profile" sp-action="Logout" method="post" class="d-inline">
             <button type="submit" class="aspforms btn">ВИХІД</button>

@@ -7,11 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Views\1.jpg" />
+    <Content Remove="wwwroot\uploads\photos\1_7.jpeg" />
+    <Content Remove="wwwroot\uploads\videos\1_9.mp4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Uploads\Photos\9.jpg" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="wwwroot\images\2.jpg" />
+    <None Include="wwwroot\uploads\photos\1_7.jpeg" />
+    <None Include="wwwroot\uploads\videos\1_9.mp4" />
+    <None Include="wwwroot\uploads\videos\VID.mp4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,11 +29,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Uploads\Videos\" />
-    <Folder Include="Uploads\Photos\" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
   </ItemGroup>
 
 </Project>

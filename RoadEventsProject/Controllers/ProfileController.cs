@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Elfie.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadEventsProject.Models;
 using RoadEventsProject.Models.Data;
@@ -41,7 +42,7 @@ namespace RoadEventsProject.Controllers
         {
             if(ModelState.IsValid)
             {
-                if(newevent.Video==null && newevent.Photo==null)
+                if(newevent.Video!=null || newevent.Photo!=null)
                 {
                     int iduser = 0;
                     RoadEvent roadEvent = new RoadEvent();
@@ -64,22 +65,24 @@ namespace RoadEventsProject.Controllers
                     if (newevent.Photo != null)
                     {
                         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Photos");
-                        var filePath = Path.Combine(uploadsFolder, $"{iduser}_{roadEvent.IdRoadEvent}");
+                        string fileName = $"{iduser}_{roadEvent.IdRoadEvent}.jpeg";
+                        var filePath = Path.Combine(uploadsFolder, fileName);
 
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
                             newevent.Photo.CopyTo(fileStream);
                         }
-                        image.ImageUrl = filePath;
+                        image.ImageUrl = $"/Uploads/Photos/{fileName}";
                         _context.Add(image);
                         _context.SaveChanges();
                         roadEvent.IdImage = image.IdImage;
                     }
+                
                     if (newevent.Video != null)
                     {
                         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Videos");
 
-                        var filePath = Path.Combine(uploadsFolder, $"{iduser}_{roadEvent.IdRoadEvent}");
+                        var filePath = Path.Combine(uploadsFolder, $"{iduser}_{roadEvent.IdRoadEvent}.mp4");
 
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
@@ -93,12 +96,39 @@ namespace RoadEventsProject.Controllers
 
                     _context.Update(roadEvent);
                     _context.SaveChanges();
+
+                    TempData["SuccessMessage"] = "Дякую!";
                 }
-                ModelState.AddModelError(string.Empty, "Завантажте відео або фото");
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Завантажте відео або фото");
+                }
             }
             var regions = _context.Regions.ToList();
             ViewBag.Regions = regions;
             return View();
         }
+
+        public IActionResult MyApplication()
+        {
+            int iduser = 0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+
+            var applications = _context.RoadEvents
+                .Where(re=>re.IdUser == iduser)
+                .Include(re => re.IdCityVillageNavigation)
+                .Include(re => re.IdImageNavigation)
+                .Include(re => re.IdStatusNavigation)
+                .Include(re => re.IdUserNavigation)
+                .Include(re => re.IdVideoNavigation)
+                .ToList();
+
+            return View(applications);
+        }
+
+
     }
 }
