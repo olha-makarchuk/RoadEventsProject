@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<RoadEventsProject.Models.Data.RoadEvent>
 
 @{
-    ViewData["Title"] = "MyApplication";
+    ViewData["Title"] = "AllApplications";
 }
 
 <!DOCTYPE html>
@@ -70,13 +70,11 @@
         </div>
 
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="MainView" class="btn aspforms">ГОЛОВНА</a>
+        <a asp-area="" asp-controller="Admin" asp-action="MainView" class="btn aspforms">ГОЛОВНА</a>
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="MyProfile" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
+        <a asp-area="" asp-controller="Admin" asp-action="AllApplications" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="FillInApplication" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
-        <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="MyApplication" class="aspforms btn">ВСІ ЗАЯВИ</a>
+        <a asp-area="" asp-controller="Admin" asp-action="AllViolations" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
         <div class="divider"></div>
         <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
     </div>
@@ -87,22 +85,25 @@
                 <thead>
                     <tr>
                         <th>
-                            <p>Статус заяви</p>
-                        </th>
-                        <th>
                             <p>Дата</p>
                         </th>
                         <th>
                             <p>Деталі</p>
                         </th>
                         <th>
-                            <p>Місце події</p>
+                            <p>Область</p>
+                        </th>
+                        <th>
+                            <p>Місто/Село</p>
                         </th>
                         <th>
                             <p>Зображення</p>
                         </th>
                         <th>
                             <p>Відео</p>
+                        </th>
+                        <th>
+                            <p>Користувач</p>
                         </th>
                         <th></th>
                     </tr>
@@ -112,15 +113,15 @@
                     {
                         <tr>
                             <td>
-                                @Html.DisplayFor(modelItem => item.IdStatusNavigation.NameStatus)
-                            </td>
-                            <td>
                                 @Html.DisplayFor(modelItem => item.DateEvent)
                             </td>
                             <td>
                                 <div style="width: 200px; word-wrap: break-word;">
                                     @Html.DisplayFor(modelItem => item.DescriptionEvent)
                                 </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.IdRegionNavigation.NameRegion)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.NameCityVillage)
@@ -131,7 +132,7 @@
                                     <img width="80" height="60" src="@Html.DisplayFor(modelItem => item.IdImageNavigation.ImageUrl)" alt="Фото">
                                 }
                                 else
-                                { 
+                                {
                                     <p>-</p>
                                 }
                             </td>
@@ -149,6 +150,13 @@
                                     <p>-</p>
                                 }
                             </td>
+                            <td>
+                                <a href="#" class="aspforms btn" onclick="showUserInfo(@item.IdUser)">Користувач</a>
+                            </td>
+                            <td>
+                                <a asp-action="RejectApplication" asp-route-id="@item.IdRoadEvent">Підтвердити</a> |
+                                <a asp-action="ConfirmApplication" asp-route-id="@item.IdRoadEvent">Відхилити</a>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -161,8 +169,14 @@
 </body>
 </html>
 
-
-
-
-
+<script>
+    function showUserInfo(userId) {
+        var url = '@Url.Action("SeeUser", "Admin")?user=' + userId;
+        var width = 300;
+        var height = 400;
+        var left = (screen.width - width) / 2;
+        var top = (screen.height - height) / 2;
+        window.open(url, 'User Info', 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top);
+    }
+</script>
 

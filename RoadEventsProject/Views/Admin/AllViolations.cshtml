@@ -1,7 +1,7 @@
-﻿@model IEnumerable<RoadEventsProject.Models.Data.RoadEvent>
+﻿@model IEnumerable<RoadEventsProject.Models.Data.Violation>
 
 @{
-    ViewData["Title"] = "MyApplication";
+    ViewData["Title"] = "AllViolations";
 }
 
 <!DOCTYPE html>
@@ -70,13 +70,11 @@
         </div>
 
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="MainView" class="btn aspforms">ГОЛОВНА</a>
+        <a asp-area="" asp-controller="Admin" asp-action="MainView" class="btn aspforms">ГОЛОВНА</a>
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="MyProfile" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
+        <a asp-area="" asp-controller="Admin" asp-action="AllApplications" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="FillInApplication" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
-        <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="MyApplication" class="aspforms btn">ВСІ ЗАЯВИ</a>
+        <a asp-area="" asp-controller="Admin" asp-action="AllViolations" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
         <div class="divider"></div>
         <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
     </div>
@@ -96,13 +94,19 @@
                             <p>Деталі</p>
                         </th>
                         <th>
-                            <p>Місце події</p>
+                            <p>Область</p>
+                        </th>
+                        <th>
+                            <p>Місто/Село</p>
                         </th>
                         <th>
                             <p>Зображення</p>
                         </th>
                         <th>
                             <p>Відео</p>
+                        </th>
+                        <th>
+                            <p>Користувач</p>
                         </th>
                         <th></th>
                     </tr>
@@ -112,42 +116,31 @@
                     {
                         <tr>
                             <td>
-                                @Html.DisplayFor(modelItem => item.IdStatusNavigation.NameStatus)
+                                @Html.DisplayFor(modelItem => item.Fine)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.DateEvent)
                             </td>
                             <td>
-                                <div style="width: 200px; word-wrap: break-word;">
-                                    @Html.DisplayFor(modelItem => item.DescriptionEvent)
-                                </div>
+                                @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.IdRegionNavigation.NameRegion)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.NameCityVillage)
                             </td>
                             <td>
-                                @if (item.IdImage != null)
-                                {
-                                    <img width="80" height="60" src="@Html.DisplayFor(modelItem => item.IdImageNavigation.ImageUrl)" alt="Фото">
-                                }
-                                else
-                                { 
-                                    <p>-</p>
-                                }
+                                @Html.DisplayFor(modelItem => item.IdDriverNavigation.IdNameNavigation.FirstName)
+                                @Html.DisplayFor(modelItem => item.IdDriverNavigation.IdNameNavigation.LastName)
+                                @Html.DisplayFor(modelItem => item.IdDriverNavigation.IdNameNavigation.MiddleName)
                             </td>
-
                             <td>
-                                @if (item.IdVideo != null)
-                                {
-                                    <video width="80" height="60" controls>
-                                        <source src="@Html.DisplayFor(modelItem => item.IdVideoNavigation.VideoUrl)" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                }
-                                else
-                                {
-                                    <p>-</p>
-                                }
+                                @Html.DisplayFor(modelItem => item.IdFineStatusNavigation.NameFine)
+                            </td>
+                            <td>
+                                <!--Admin-->
+                                @Html.DisplayFor(modelItem => item.IdUserNavigation.IdUser)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.IdVehicleNavigation.NumberCar)
                             </td>
                         </tr>
                     }
@@ -159,10 +152,3 @@
 
     <div class="clearfix"></div>
 </body>
-</html>
-
-
-
-
-
-

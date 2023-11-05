@@ -81,7 +81,7 @@ namespace RoadEventsProject.Controllers
                         }
                         if (user.IdRole == 2)
                         {
-                            return RedirectToAction("MainView", "Profile");
+                            return RedirectToAction("MainView", "Admin");
                         }
                     }
                 }
