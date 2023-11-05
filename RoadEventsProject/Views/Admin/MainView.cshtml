@@ -1,10 +1,82 @@
-﻿
-<h1>Панель управління</h1>
+﻿@model RoadEventsProject.Models.LoginUserModel
 
-<div>
-    <a asp-action="Admin" class="btn btn-primary">Перегляд всіх заяв</a>
-    <a asp-action="ApplicationForm" class="btn btn-success">Заповнити заявку</a>
-    <form asp-action="Logout" method="post" class="d-inline">
-        <button type="submit" class="btn btn-danger">Вихід</button>
-    </form>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .left-column {
+            margin: 0;
+            float: left;
+            width: 20%;
+            height: 95vh; 
+            background-color: black;
+            color: white;
+        }
+
+        .right-column {
+            margin: 0;
+            float: left;
+            width: 60%;
+            height: 95vh;
+            background-color: white;
+            color: black;
+        }
+
+        .column-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .divider {
+            height: 0.5px;
+            width: 80%;
+            background-color: white;
+            margin: 15px;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .btn {
+            display: block;
+            margin-bottom: 2px;
+            margin-left: 2px;
+        }
+
+        .aspforms {
+            font-size: 16px;
+            font-weight: bold;
+            color: #919191;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="left-column">
+        <div style="padding-left:25px; font-size:24px; color:white; font-weight:bold; margin-top:30px;">
+            <p>Панель</p>
+            <p>Управління</p>
+        </div>
+
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Admin" asp-action="Admin" class="btn btn-primary">Перегляд всіх заяв</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Admin" asp-action="ApplicationForm" class="btn btn-success">Заповнити заявку</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
+    </div>
+
+    <div class="right-column">
+        <p>fghjkgggggg</p>
+    </div>
+
+    <div class="clearfix"></div>
+</body>
+</html>

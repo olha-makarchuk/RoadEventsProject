@@ -18,7 +18,6 @@ namespace RoadEventsProject.Controllers
             _context = context;
         }
 
-        private RoadEventsContext context;
 
         public IActionResult Register()
         {
@@ -29,6 +28,8 @@ namespace RoadEventsProject.Controllers
         public IActionResult Register(RegisterUserModel model)
         {
             var context = new RoadEventsContext();
+            MyObject myObject = new MyObject();
+            myObject.Value = model.Password;
 
             if (ModelState.IsValid)
             {
@@ -44,12 +45,12 @@ namespace RoadEventsProject.Controllers
                 userInfo.IdName = name.IdName;
                 userInfo.IdRole = 1;
                 userInfo.LoginUser = model.UserName;
-                //перевести в хеш
-                //userInfo.PasswordHash = model.Password.GetHashCode();
+
+                userInfo.PasswordHash = myObject.GetMd5Hash();
                 context.Add(userInfo);
                 context.SaveChanges();
 
-                return RedirectToAction("Login");
+                return RedirectToAction("Index");
             }
             return View(model);
         }

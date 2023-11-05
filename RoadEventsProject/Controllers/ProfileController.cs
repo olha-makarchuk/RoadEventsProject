@@ -15,20 +15,45 @@ namespace RoadEventsProject.Controllers
         }
         public IActionResult MainView()
         {
-            
             return View();
         }
 
-        public IActionResult Logout() 
-        { 
-            return View("Index", "Home");
-        }
-
-        public IActionResult MyProfile()
+        public async Task<IActionResult> MyProfile()
         {
-            return View();
+            int iduser=0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+            var user = await _context.UserInfos.Where(u=>u.IdUser==iduser).Include(re => re.IdNameNavigation).FirstOrDefaultAsync();
+            RegisterUserModel userModel = new() { FirstName = user.IdNameNavigation.FirstName, MiddleName = user.IdNameNavigation.MiddleName, LastName = user.IdNameNavigation.LastName, UserName=user.LoginUser};
+            return View(userModel);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> MyProfile(RegisterUserModel userModel)
+        {
+            int iduser = 0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+
+            var user = await _context.UserInfos.Where(u => u.IdUser == iduser).FirstOrDefaultAsync();
+            var username = await _context.Names.Where(n => n.IdName == user.IdName).FirstOrDefaultAsync();
+
+            username.FirstName=userModel.FirstName; 
+            username.LastName=userModel.LastName; 
+            username.MiddleName=userModel.MiddleName;
+
+            user.LoginUser = userModel.UserName;
+
+            _context.Update(username);
+            _context.Update(user);
+            _context.SaveChanges();
+
+            return RedirectToAction("MyProfile");
+        }
 
         public async Task<IActionResult> FillInApplication()
         {

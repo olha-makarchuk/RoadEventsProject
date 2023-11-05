@@ -1,4 +1,4 @@
-﻿@model RoadEventsProject.Models.LoginUserModel
+﻿@model RoadEventsProject.Models.RegisterUserModel
 
 <!DOCTYPE html>
 <html>
@@ -60,6 +60,60 @@
             color: #919191;
             text-align: left;
         }
+
+        .square {
+            background-color: #9aa0a6;
+            display: inline-block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+        }
+
+            .square h1 {
+                color: white;
+                margin: 0;
+            }
+
+        .button-container {
+            height: 50px;
+            width: 100px;
+        }
+
+        .custom-button {
+            background-color: #071952;
+            color: white;
+            font-size: 16px;
+        }
+
+        .squareBlock {
+            background-color: rgb(65,105,225,0.3);
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .text-blue {
+            color: white;
+            text-shadow: 2px 2px 2px black, 0 2px 2px black, -2px 0 2px black, 0 -2px 2px black; /* Встановлює білу обводку тексту */
+        }
+
+        .squareBlockText {
+            background-color: rgba(65, 105, 225, 0.3);
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            width: 80%;
+        }
+
+        .text-border {
+            font-size: 14px;
+            color: white;
+            text-shadow: 1px 1px 1px black, 0 1px 1px black, -1px 0 1px black, 0 -1px 1px black; /* Встановлює білу обводку тексту */
+        }
     </style>
 </head>
 <body>
@@ -69,19 +123,51 @@
         </div>
 
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="some" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
+        <a asp-area="" asp-controller="Profile" asp-action="MainView" class="btn aspforms">ГОЛОВНА</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Profile" asp-action="MyProfile" class="btn aspforms">МІЙ ПРОФІЛЬ</a>
         <div class="divider"></div>
         <a asp-area="" asp-controller="Profile" asp-action="FillInApplication" class="aspforms btn">ЗАПОВНИТИ ЗАЯВКУ</a>
         <div class="divider"></div>
-        <a asp-area="" asp-controller="Profile" asp-action="Test" class="aspforms btn">ВСІ ЗАЯВИ</a>
+        <a asp-area="" asp-controller="Profile" asp-action="MyApplication" class="aspforms btn">ВСІ ЗАЯВИ</a>
         <div class="divider"></div>
-        <form asp-area="" asp-controller="Profile" sp-action="Logout" method="post" class="d-inline">
-            <button type="submit" class="aspforms btn">ВИХІД</button>
-        </form>
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
     </div>
 
     <div class="right-column">
-        <p>fghjkgggggg</p>
+        <div class="squareBlockText" style=" margin-top:5%; width: 100%; ">
+            <div class="text-center" style="margin-top:10px">
+                <div>
+                    <h1 class="content_style text-blue">Заповніть заяву:</h1>
+                </div>
+            </div>
+        </div>
+        <div class="squareBlock" style=" margin-left:28%; margin-top:3%; width:45%">
+
+            <form asp-action="MyProfile" method="post" enctype="multipart/form-data" class="text-border">
+                <div class="form-group">
+                    <label for="FirstName">Ім'я:</label>
+                    <input type="text" id="FirstName" name="FirstName" class="form-control" value="@Model.FirstName">
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="LastName">Прізвище:</label>
+                    <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName">
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="MiddleName">По батькові:</label>
+                    <input type="text" id="MiddleName" name="MiddleName" class="form-control" value="@Model.MiddleName">
+                    <span asp-validation-for="MiddleName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="UserName">Логін:</label>
+                    <input type="text" id="UserName" name="UserName" class="form-control" value="@Model.UserName">
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary" style="text-align:center; margin-top:10px">Зберегти</button>
+            </form>
+        </div>
     </div>
 
     <div class="clearfix"></div>
