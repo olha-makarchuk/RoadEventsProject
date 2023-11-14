@@ -21,8 +21,6 @@ public partial class RoadEvent
 
     public string? DescriptionEvent { get; set; }
 
-    public string? Сomment { get; set; }
-
     public virtual CityVillage IdCityVillageNavigation { get; set; } = null!;
 
     public virtual Image? IdImageNavigation { get; set; }
@@ -32,4 +30,5 @@ public partial class RoadEvent
     public virtual UserInfo IdUserNavigation { get; set; } = null!;
 
     public virtual Video? IdVideoNavigation { get; set; }
+    public virtual ICollection<Violation> Violations { get; set; } = new List<Violation>();
 }

@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Uploads\Photos\9.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\images\2.jpg" />
   </ItemGroup>
 
@@ -22,6 +18,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Uploads\Videos\" />
+    <Folder Include="Uploads\Photos\" />
+    <Folder Include="wwwroot\Uploads\Videos\" />
+    <Folder Include="wwwroot\Uploads\Photos\" />
   </ItemGroup>
 
 </Project>

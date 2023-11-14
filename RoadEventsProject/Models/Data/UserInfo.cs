@@ -11,9 +11,11 @@ public partial class UserInfo
 
     public string LoginUser { get; set; } = null!;
 
-    public string PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = null!;
 
     public int IdRole { get; set; }
+
+    public bool Blocked { get; set; }
 
     public virtual Name IdNameNavigation { get; set; } = null!;
 

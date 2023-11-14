@@ -1,8 +1,18 @@
 ﻿@model RoadEventsProject.Models.Data.UserInfo
 
 <div style="width: 100%; text-align: center;">
-    <h2>User Information</h2>
-    <p>Name: @Model.IdNameNavigation.LastName</p>
+    <h2 style="text-align:center">Інформація про користувача</h2>
+    <p>Id користувача: @Model.IdUser</p>
+    <p>ПІБ: @Model.IdNameNavigation.LastName @Model.IdNameNavigation.FirstName @Model.IdNameNavigation.MiddleName</p>
     <p>Email: @Model.LoginUser</p>
-    <!-- Add other user information here -->
+
+    @if (@Model.Blocked == false)
+    {
+        <a asp-controller="Admin" asp-route-id="@Model.IdUser" asp-action="BlockUser" class="btn" style="color: #5085a5">Заблокувати</a>
+    }
+
+    @if (@Model.Blocked == true)
+    {
+        <a asp-controller="Admin" asp-route-id="@Model.IdUser" asp-action="UnlockUser" class="btn" style="color: #5085a5">Розблокувати</a>
+    }
 </div>

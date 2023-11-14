@@ -8,7 +8,6 @@ public partial class RoadEventsContext : DbContext
 {
     public RoadEventsContext()
     {
-
     }
 
     public RoadEventsContext(DbContextOptions<RoadEventsContext> options)
@@ -19,8 +18,6 @@ public partial class RoadEventsContext : DbContext
     public virtual DbSet<CityVillage> CityVillages { get; set; }
 
     public virtual DbSet<Driver> Drivers { get; set; }
-
-    public virtual DbSet<FineStatus> FineStatuses { get; set; }
 
     public virtual DbSet<Image> Images { get; set; }
 
@@ -44,12 +41,10 @@ public partial class RoadEventsContext : DbContext
 
     public virtual DbSet<Violation> Violations { get; set; }
 
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
-      //=> optionsBuilder.UseSqlServer("Data Source=SQL5110.site4now.net;Initial Catalog=db_aa0c4f_olha01;User Id=db_aa0c4f_olha01_admin;Password=olhanator0108;");
-      => optionsBuilder.UseSqlServer("Server=OLHA_MAKARCHUK\\SQLEXPRESS;Database=RoadEvents;User=UserNew;Password=12345;Trusted_Connection=True; TrustServerCertificate=True");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=Olha_Makarchuk\\SQLEXPRESS; Database =RoadEvents;Trusted_Connection=True; TrustServerCertificate=True;");
 
-      
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CityVillage>(entity =>
@@ -77,21 +72,6 @@ public partial class RoadEventsContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("IPN_number");
-
-            entity.HasOne(d => d.IdNameNavigation).WithMany(p => p.Drivers)
-                .HasForeignKey(d => d.IdName)
-                .HasConstraintName("FK_Driver_Name");
-        });
-
-        modelBuilder.Entity<FineStatus>(entity =>
-        {
-            entity.HasKey(e => e.IdFineStatus).HasName("PK_IdFine");
-
-            entity.ToTable("FineStatus");
-
-            entity.Property(e => e.NameFine)
-                .HasMaxLength(30)
-                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Image>(entity =>
@@ -140,10 +120,7 @@ public partial class RoadEventsContext : DbContext
 
             entity.Property(e => e.DateEvent).HasColumnType("datetime");
             entity.Property(e => e.DescriptionEvent)
-                .HasMaxLength(1)
-                .IsUnicode(false);
-            entity.Property(e => e.Сomment)
-                .HasMaxLength(1)
+                .HasMaxLength(200)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.IdCityVillageNavigation).WithMany(p => p.RoadEvents)
@@ -215,6 +192,9 @@ public partial class RoadEventsContext : DbContext
             entity.Property(e => e.LoginUser)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(50)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.IdNameNavigation).WithMany(p => p.UserInfos)
                 .HasForeignKey(d => d.IdName)
@@ -268,9 +248,10 @@ public partial class RoadEventsContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Violation_Driver");
 
-            entity.HasOne(d => d.IdFineStatusNavigation).WithMany(p => p.Violations)
-                .HasForeignKey(d => d.IdFineStatus)
-                .HasConstraintName("FK_Violation_FineStatus");
+            entity.HasOne(d => d.IdRoadEventNavigation).WithMany(p => p.Violations)
+                .HasForeignKey(d => d.IdRoadEvent)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Violation_RoadEvent");
 
             entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.Violations)
                 .HasForeignKey(d => d.IdUser)
@@ -284,7 +265,7 @@ public partial class RoadEventsContext : DbContext
 
         OnModelCreatingPartial(modelBuilder);
     }
-    
+
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 

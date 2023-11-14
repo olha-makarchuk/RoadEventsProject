@@ -24,7 +24,7 @@
         .right-column {
             margin: 0;
             float: left;
-            width: 60%;
+            width: 77%;
             height: 95vh;
             background-color: white;
             color: black;
@@ -78,7 +78,10 @@
         <div class="divider"></div>
         <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
     </div>
-    <div class="right-column" style="margin-left:10%">
+
+    <div class="right-column" style="margin-left:2%">
+        
+
         <p style="text-align:center; font-weight:bold">Мої заяви</p>
         <div style="height: 90%; overflow: auto;">
             <table class="table">
@@ -129,7 +132,7 @@
                             <td>
                                 @if (item.IdImage != null)
                                 {
-                                    <img width="80" height="60" src="@Html.DisplayFor(modelItem => item.IdImageNavigation.ImageUrl)" alt="Фото">
+                                    <img src="@Html.DisplayFor(modelItem => item.IdImageNavigation.ImageUrl)" class="img" style="width:130px; height:100px;">
                                 }
                                 else
                                 {
@@ -140,7 +143,7 @@
                             <td>
                                 @if (item.IdVideo != null)
                                 {
-                                    <video width="80" height="60" controls>
+                                    <video width="130" height="100" controls>
                                         <source src="@Html.DisplayFor(modelItem => item.IdVideoNavigation.VideoUrl)" type="video/mp4">
                                         Your browser does not support the video tag.
                                     </video>
@@ -154,9 +157,10 @@
                                 <a href="#" class="aspforms btn" onclick="showUserInfo(@item.IdUser)">Користувач</a>
                             </td>
                             <td>
-                                <a asp-action="RejectApplication" asp-route-id="@item.IdRoadEvent">Підтвердити</a> |
-                                <a asp-action="ConfirmApplication" asp-route-id="@item.IdRoadEvent">Відхилити</a>
+                                @Html.ActionLink("Підтвердити", "ConfirmApplication", new{id=item.IdRoadEvent})
+                                @Html.ActionLink("Відхилити", "RejectApplication", new{id=item.IdRoadEvent})
                             </td>
+
                         </tr>
                     }
                 </tbody>

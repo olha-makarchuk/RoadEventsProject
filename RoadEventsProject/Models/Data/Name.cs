@@ -13,7 +13,5 @@ public partial class Name
 
     public string LastName { get; set; } = null!;
 
-    public virtual ICollection<Driver> Drivers { get; set; } = new List<Driver>();
-
     public virtual ICollection<UserInfo> UserInfos { get; set; } = new List<UserInfo>();
 }
