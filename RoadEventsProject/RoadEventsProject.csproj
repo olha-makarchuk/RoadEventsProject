@@ -7,10 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\images\2.jpg" />
+    <Content Remove="wwwroot\Uploads\Photos\1_8.jpeg" />
+    <Content Remove="wwwroot\Uploads\Photos\1_9.jpeg" />
+    <Content Remove="wwwroot\Uploads\Videos\1_8.mp4" />
+    <Content Remove="wwwroot\Uploads\Videos\1_9.mp4" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\images\2.jpg" />
+    <None Include="wwwroot\Uploads\Photos\1_8.jpeg" />
+    <None Include="wwwroot\Uploads\Photos\1_9.jpeg" />
+    <None Include="wwwroot\Uploads\Videos\1_8.mp4" />
+    <None Include="wwwroot\Uploads\Videos\1_9.mp4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.64.0.3155" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.13">
@@ -18,13 +30,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
+    <PackageReference Include="Xabe.FFmpeg" Version="5.2.6" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Uploads\Videos\" />
     <Folder Include="Uploads\Photos\" />
-    <Folder Include="wwwroot\Uploads\Videos\" />
-    <Folder Include="wwwroot\Uploads\Photos\" />
   </ItemGroup>
 
 </Project>

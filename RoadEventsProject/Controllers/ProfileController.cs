@@ -1,4 +1,5 @@
 ﻿using Elfie.Serialization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadEventsProject.Models;
@@ -9,9 +10,12 @@ namespace RoadEventsProject.Controllers
     public class ProfileController : Controller
     {
         private readonly RoadEventsContext _context;
-        public ProfileController(RoadEventsContext context)
+        private readonly IWebHostEnvironment _env;
+
+        public ProfileController(RoadEventsContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
         public IActionResult MainView()
         {
@@ -62,9 +66,14 @@ namespace RoadEventsProject.Controllers
             return View();
         }
 
+
         [HttpPost]
-        public IActionResult FillInApplication(Event newevent)
+        [DisableRequestSizeLimit]
+        [RequestFormLimits(ValueLengthLimit = 50 * 1024 * 1024)]
+        public async Task<IActionResult> FillInApplication(Event newevent)
         {
+            GoogleDrive googleDrive = new();
+
             if(ModelState.IsValid)
             {
                 if(newevent.Video!=null || newevent.Photo!=null)
@@ -89,15 +98,10 @@ namespace RoadEventsProject.Controllers
 
                     if (newevent.Photo != null)
                     {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Photos");
-                        string fileName = $"{iduser}_{roadEvent.IdRoadEvent}.jpeg";
-                        var filePath = Path.Combine(uploadsFolder, fileName);
+                        string fileName = $"{iduser}_{roadEvent.IdRoadEvent}";
+                        string link =await googleDrive.UploadAsync(fileName, newevent.Photo, ".jpeg", "image/jpeg");
 
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            newevent.Photo.CopyTo(fileStream);
-                        }
-                        image.ImageUrl = $"/Uploads/Photos/{fileName}";
+                        image.ImageUrl = link;
                         _context.Add(image);
                         _context.SaveChanges();
                         roadEvent.IdImage = image.IdImage;
@@ -105,24 +109,21 @@ namespace RoadEventsProject.Controllers
                 
                     if (newevent.Video != null)
                     {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Videos");
+                        string fileName = $"{iduser}_{roadEvent.IdRoadEvent}";
+                        string link = await googleDrive.UploadAsync(fileName, newevent.Video, ".mp4", "video/mp4");
 
-                        var filePath = Path.Combine(uploadsFolder, $"{iduser}_{roadEvent.IdRoadEvent}.mp4");
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            newevent.Video.CopyTo(fileStream);
-                        }
-                        video.VideoUrl = filePath;
+                        //string[] link = await googleDrive.UploadVideoInPartsAsync(fileName, newevent.Video, ".mp4", "video/mp4");
+                        //await googleDrive.CompressVideoTo720pAsync(newevent.Video);
+                        /*video.VideoUrl = link;
                         _context.Add(video);
                         _context.SaveChanges();
-                        roadEvent.IdVideo = video.IdVideo;
+                        roadEvent.IdVideo = video.IdVideo;*/
                     }
 
                     _context.Update(roadEvent);
                     _context.SaveChanges();
 
-                    TempData["SuccessMessage"] = "Дякую!";
+                    TempData["SuccessMessage"] = "Дякуємо за вашу заяву!";
                 }
                 else
                 {
