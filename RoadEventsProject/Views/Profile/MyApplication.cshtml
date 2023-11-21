@@ -81,6 +81,23 @@
         <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
     </div>
     <div class="right-column" style="margin-left:10%">
+        <div>
+            <form asp-action="MyApplication" method="get">
+                <select name="idstatus">
+                    <option value="0">Всі</option>
+                    <option value="1">Необроблені</option>
+                    <option value="2">Підтверджені</option>
+                    <option value="3">Відхилені</option>
+                </select>
+                <div>
+                    <input type="date" name="date" placeholder="Enter Date" />
+                    <span class="text-danger">
+                        @Html.ValidationMessage("iddateError", new { @class = "text-danger" })
+                    </span>
+                </div>
+                <button type="submit">Пошук</button>
+            </form>
+        </div>
         <p style="text-align:center; font-weight:bold">Мої заяви</p>
         <div style="height: 90%; overflow: auto;">
             <table class="table">

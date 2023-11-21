@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadEventsProject.Models;
 using RoadEventsProject.Models.Data;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace RoadEventsProject.Controllers
 {
@@ -80,7 +81,7 @@ namespace RoadEventsProject.Controllers
                 {
                     int iduser = 0;
                     RoadEvent roadEvent = new RoadEvent();
-                    Image image = new Image();
+                    Models.Data.Image image = new Models.Data.Image();
                     Video video = new Video();
                     if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
                     {
@@ -135,22 +136,45 @@ namespace RoadEventsProject.Controllers
             return View();
         }
 
-        public IActionResult MyApplication()
+        public IActionResult MyApplication(int idstatus, DateOnly date)
         {
+            DateOnly dateEq = new();
             int iduser = 0;
             if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
             {
                 iduser = int.Parse(idCookie);
             }
 
-            var applications = _context.RoadEvents
-                .Where(re=>re.IdUser == iduser)
+            List<RoadEvent> applications = new List<RoadEvent>(); 
+            if(date != dateEq)
+            {
+                applications = _context.RoadEvents
+                .Where(re => re.IdUser == iduser)
+                .Where(re => re.DateEvent.Date.Equals(date))
                 .Include(re => re.IdCityVillageNavigation)
                 .Include(re => re.IdImageNavigation)
                 .Include(re => re.IdStatusNavigation)
                 .Include(re => re.IdUserNavigation)
                 .Include(re => re.IdVideoNavigation)
                 .ToList();
+                if(applications.Count == 0)
+                {
+                    ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
+                    return View(applications);
+                }
+            }
+            else
+            {
+                applications = _context.RoadEvents
+                .Where(re => re.IdUser == iduser)
+                .Include(re => re.IdCityVillageNavigation)
+                .Include(re => re.IdImageNavigation)
+                .Include(re => re.IdStatusNavigation)
+                .Include(re => re.IdUserNavigation)
+                .Include(re => re.IdVideoNavigation)
+                .ToList();
+            }
+            ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
 
             return View(applications);
         }
