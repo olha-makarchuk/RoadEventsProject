@@ -1,4 +1,4 @@
-﻿@model IEnumerable<RoadEventsProject.Models.Data.Violation>
+﻿@model RoadEventsProject.Models.AllViolationsTypesModel
 
 @{
     ViewData["Title"] = "AllViolations";
@@ -61,6 +61,17 @@
             text-align: left;
         }
 
+        .tableborder {
+            border: 1px solid #000;
+        }
+
+            .tableborder tr:nth-child(odd) {
+                background-color: #d8ecf3; /* Голубий колір для парних рядків */
+            }
+
+            .tableborder tr:nth-child(even) {
+                background-color: #ffffff; /* Білий колір для непарних рядків */
+            }
     </style>
 </head>
 <body>
@@ -80,65 +91,85 @@
         <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
     </div>
     <div class="right-column" style="margin-left:10%">
+        <div>
+            <form asp-action="AllViolations" method="get">
+            <input type="number" name="idViolation" placeholder="Enter User ID" />
+            <div>
+            <span class="text-danger">
+                    @Html.ValidationMessage("idViolationError", new { @class = "text-danger" })
+            </span>
+                </div>
+            <button type="submit">Пошук</button>
+            </form>
+        </div>
+
         <p style="text-align:center; font-weight:bold">Мої заяви</p>
         <div style="height: 90%; overflow: auto;">
-            <table class="table">
+            <table class="table tableborder">
                 <thead>
                     <tr>
-                        <th>
-                            <p>Статус заяви</p>
-                        </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Дата</p>
                         </th>
-                        <th>
-                            <p>Деталі</p>
+                        <th class="tableborder">
+                            <p>Штраф</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Область</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Місто/Село</p>
                         </th>
-                        <th>
-                            <p>Зображення</p>
+                        <th class="tableborder">
+                            <p>ІПН водія</p>
                         </th>
-                        <th>
-                            <p>Відео</p>
+                        <th class="tableborder">
+                            <p>Id адміна</p>
                         </th>
-                        <th>
-                            <p>Користувач</p>
+                        <th class="tableborder">
+                            <p>Номер машини</p>
                         </th>
-                        <th></th>
+                        <th class="tableborder">
+                            <p>Типи порушень</p>
+                        </th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var item in Model)
+                <tbody >
+                    @foreach (var item in Model.Violations)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Fine)
-                            </td>
-                            <td>
+                        <tr class="tableborder">
+                            <td class="tableborder">
                                 @Html.DisplayFor(modelItem => item.DateEvent)
                             </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.IdRegionNavigation.NameRegion)
+                            <td class="tableborder">
+                                    @Html.DisplayFor(modelItem => item.Fine)
                             </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.NameCityVillage)
+                            <td class ="tableborder">
+                                    @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.IdRegionNavigation.NameRegion)
                             </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.IdDriverNavigation.IpnNumber)
+                            <td class="tableborder">
+                                    @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.NameCityVillage)
                             </td>
-                            <td>
-                                <!--Admin-->
-                                @Html.DisplayFor(modelItem => item.IdUserNavigation.IdUser)
+                            <td class="tableborder">
+                                    @Html.DisplayFor(modelItem => item.IdDriverNavigation.IpnNumber)
                             </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.IdVehicleNavigation.NumberCar)
+                            <td class="tableborder">
+                                    @Html.DisplayFor(modelItem => item.IdUser)
                             </td>
-                        </tr>
+                            <td class="tableborder">
+                                    @Html.DisplayFor(modelItem => item.IdVehicleNavigation.NumberCar)
+                            </td>
+                            <td class="tableborder">
+                                @foreach(var type in Model.Types)
+                                {
+                                    if(type.IdViolation == item.IdViolation)
+                                    {
+                                        <p>@Html.DisplayFor(modelItem => type.IdTypeNavigation.NameType) ,</p>
+                                    }
+                                }
+                                
+                                </td>
+                            </tr>
                     }
                 </tbody>
             </table>

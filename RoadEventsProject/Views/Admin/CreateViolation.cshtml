@@ -114,6 +114,8 @@
                 <label for="NameCityVillage">Місто/Село:</label>
                 <textarea id="NameCityVillage" name="NameCityVillage" class="form-control" readonly>@Model.ViolationModel.IdCityVillageNavigation.NameCityVillage</textarea>
                 <input type="hidden" asp-for="ViolationModel.IdCityVillage" />
+                <input type="hidden" asp-for="ViolationModel.IdCityVillageNavigation" />
+                <input type="hidden" asp-for="ViolationModel.IdCityVillageNavigation.IdRegionNavigation.NameRegion" />
                 <span asp-validation-for="ViolationModel.IdCityVillageNavigation.NameCityVillage" class="text-danger"></span>
             </div>
 

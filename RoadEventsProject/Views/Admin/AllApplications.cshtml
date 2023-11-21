@@ -81,8 +81,24 @@
     </div>
 
     <div class="right-column" style="margin-left:2%">
+        <div>
+            <form asp-action="AllApplications" method="get">
+                <select name="idstatus">
+                    <option value="0">Всі</option>
+                    <option value="1">Необроблені</option>
+                    <option value="2">Підтверджені</option>
+                    <option value="3">Відхилені</option>
+                </select>
+                <div>
+                <input type="number" name="idUser" placeholder="Enter User ID" />
+                <span class="text-danger">
+                    @Html.ValidationMessage("idUserError", new { @class = "text-danger" })
+                </span>
+                </div>
+                <button type="submit">Пошук</button>
+            </form>
+        </div>
 
-        <p style="text-align:center; font-weight:bold">Мої заяви</p>
         <div style="height: 90%; overflow: auto;">
             <table class="table">
                 <thead>
@@ -156,11 +172,27 @@
                             <td>
                                 <a href="#" class="aspforms btn" onclick="showUserInfo(@item.IdUser)">Користувач</a>
                             </td>
-                            <td>
-                                @Html.ActionLink("Підтвердити", "CreateViolation", new{id=item.IdRoadEvent})
-                                @Html.ActionLink("Відхилити", "RejectApplication", new{id=item.IdRoadEvent})
-                            </td>
 
+                            @if (item.IdStatus == 1)
+                            {
+                                <td>
+                                    @Html.ActionLink("Підтвердити", "CreateViolation", new{id=item.IdRoadEvent})
+                                    @Html.ActionLink("Відхилити", "RejectApplication", new{id=item.IdRoadEvent})
+                                </td>
+                            }
+                            @if (item.IdStatus == 2)
+                            {
+                                <td>
+                                    <p>Заява прийнята</p>
+                                </td>
+                            }
+                            @if (item.IdStatus == 3)
+                            {
+                                <td>
+                                    <p>Заява відхилена</p>
+                                    @Html.ActionLink("Прийняти", "CreateViolation", new{id=item.IdRoadEvent})
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>
@@ -182,5 +214,6 @@
         var top = (screen.height - height) / 2;
         window.open(url, 'User Info', 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top);
     }
+    
 </script>
 

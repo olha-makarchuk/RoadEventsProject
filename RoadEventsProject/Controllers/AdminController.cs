@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Drive.v3.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using RoadEventsProject.Models;
 using RoadEventsProject.Models.Data;
@@ -22,16 +23,61 @@ namespace RoadEventsProject.Controllers
             return View();
         }
 
-        public async Task<IActionResult> AllApplications()
+        public async Task<IActionResult> AllApplications(int idstatus, int idUser)
         {
-            var applications = await _context.RoadEvents
-            .Where(u => u.IdStatus == 1)
-            .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-            .Include(u => u.IdVideoNavigation)
-            .Include(u => u.IdImageNavigation)
-            .OrderByDescending(u => u.DateEvent)
-            .ToListAsync();
-            return View(applications);
+            var users = await _context.UserInfos.ToListAsync();
+            List<RoadEvent> events = new List<RoadEvent>();
+
+            if (users.Exists(u=>u.IdUser == idUser))
+            {
+                if (idstatus == 0)//статус
+                {
+                    events = await _context.RoadEvents
+                    .Where(u => u.IdUser == idUser)
+                    .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                    .Include(u => u.IdVideoNavigation)
+                    .Include(u => u.IdImageNavigation)
+                    .OrderByDescending(u => u.DateEvent)
+                    .ToListAsync();
+                }
+                else//статус і юзер
+                {
+                    events = await _context.RoadEvents
+                    .Where(u => u.IdStatus == idstatus)
+                    .Where(u => u.IdUser == idUser)
+                    .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                    .Include(u => u.IdVideoNavigation)
+                    .Include(u => u.IdImageNavigation)
+                    .OrderByDescending(u => u.DateEvent)
+                    .ToListAsync();
+                }
+                return View(events);
+            }
+            else if(idUser != 0)
+            {
+                ModelState.AddModelError("idUserError", "Не знайдено користувачаз id ("+idUser+")");
+                return View(events);
+            }
+            if (idstatus != 0)
+            {
+                events = await _context.RoadEvents
+                .Where(u => u.IdStatus == idstatus)
+                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                .Include(u => u.IdVideoNavigation)
+                .Include(u => u.IdImageNavigation)
+                .OrderByDescending(u => u.DateEvent)
+                .ToListAsync();
+            }
+            else
+            {
+                events = await _context.RoadEvents
+                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                .Include(u => u.IdVideoNavigation)
+                .Include(u => u.IdImageNavigation)
+                .OrderByDescending(u => u.DateEvent)
+                .ToListAsync();
+            }
+            return View(events);
         }
 
         public async Task<IActionResult> CreateViolation(int id)
@@ -67,6 +113,15 @@ namespace RoadEventsProject.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateViolation(ViolationAndTypesModel model)
         {
+            ViewBag.TypeViolation = await _context.TypeViolations.ToListAsync();
+            ViewBag.VehiclesAll = await _context.Vehicles.Include(u => u.IdDriverNavigation).ToListAsync();
+
+            int iduser = 0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+
             if (model.ViolationModel != null)
             {
                 bool ifExist = false;
@@ -78,6 +133,7 @@ namespace RoadEventsProject.Controllers
                         ifExist = true;
                         model.ViolationModel.IdDriver = vehicle.IdDriver;
                         model.ViolationModel.IdVehicle = vehicle.IdVehicle;
+                        model.ViolationModel.IdUser = iduser;
                         _context.Add(model.ViolationModel);
                         _context.SaveChanges();
 
@@ -92,6 +148,12 @@ namespace RoadEventsProject.Controllers
                         return RedirectToAction(nameof(AllApplications));
                     }
                 }
+                if (model.SelectedViolationTypes.Count ==0)
+                {
+                    ModelState.AddModelError("SelectedViolationTypes", "Не вибрано жодного  типу порушення");
+                    return View(model);
+                }
+
                 ModelState.AddModelError("NumberCar", "Автомобіль не знайдено");
                 return View(model);
             }
@@ -112,10 +174,40 @@ namespace RoadEventsProject.Controllers
             return RedirectToAction(nameof(AllApplications));
         }
 
-        public async Task<IActionResult> AllViolations()
+        public async Task<IActionResult> AllViolations(int idViolation)
         {
-            var violations = await _context.Violations.ToListAsync();
-            return View(violations);
+            AllViolationsTypesModel model = new();
+            List <Violation> violations = new();
+            var types = await _context.ViolationTypesConnecteds
+                .Include(u => u.IdTypeNavigation)
+                .Include(u => u.IdViolationNavigation)
+                .ToListAsync();
+
+            model.Types.AddRange(types);
+
+            if (idViolation == 0)
+            {
+                violations = await _context.Violations
+                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                .ToListAsync();
+            }
+            else
+            {
+                violations = await _context.Violations
+                .Where(u=>u.IdRoadEvent ==idViolation)
+                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                .ToListAsync();
+
+                if (violations.Count == 0)
+                {
+                    ModelState.AddModelError("idViolationError", "Не знайдено порушень за заявою id (" + idViolation + ")");
+                    return View(model);
+                }
+            }
+
+            model.Violations.AddRange(violations);
+
+            return View(model);
         }
 
         public async Task<IActionResult> SeeUser(int user)
@@ -165,45 +257,6 @@ namespace RoadEventsProject.Controllers
             }
             return PartialView("_UserInfo", user);
         }
-
-
-        
-        
-        //Функції
-
-        //Пошук всіх заяв користувачів
-        public async Task<ActionResult> FindAllUserApplicatons(int idUser)
-        {
-            var applications = await _context.RoadEvents
-            .Where(u => u.IdStatus == 1)
-            .Where(u => u.IdUser == idUser)
-            .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-            .Include(u => u.IdVideoNavigation)
-            .Include(u => u.IdImageNavigation)
-            .OrderByDescending(u => u.DateEvent)
-            .ToListAsync();
-            return null;/////////////передати applications в AllApplications
-        }
-
-        
-        //Пошук заяв за датою
-        public async Task<ActionResult> FindApplicatonsByDate(DateTime date)
-        {
-            var applications = await _context.RoadEvents
-            .Where(u => u.IdStatus == 1)
-            .Where(u => u.DateEvent.Date == date.Date)
-            .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-            .Include(u => u.IdVideoNavigation)
-            .Include(u => u.IdImageNavigation)
-            .OrderByDescending(u => u.DateEvent)
-            .ToListAsync();
-            return null;
-        }
-
-        //Пошук заяв користувача
-
-
-
     }
 
 }
