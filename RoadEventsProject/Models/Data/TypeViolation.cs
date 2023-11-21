@@ -9,7 +9,5 @@ public partial class TypeViolation
 
     public string NameType { get; set; } = null!;
 
-    public int IdViolation { get; set; }
-
-    public virtual Violation IdViolationNavigation { get; set; } = null!;
+    public virtual ICollection<ViolationTypesConnected> ViolationTypesConnecteds { get; set; } = new List<ViolationTypesConnected>();
 }

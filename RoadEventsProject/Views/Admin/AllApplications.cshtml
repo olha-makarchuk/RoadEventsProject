@@ -157,7 +157,7 @@
                                 <a href="#" class="aspforms btn" onclick="showUserInfo(@item.IdUser)">Користувач</a>
                             </td>
                             <td>
-                                @Html.ActionLink("Підтвердити", "ConfirmApplication", new{id=item.IdRoadEvent})
+                                @Html.ActionLink("Підтвердити", "CreateViolation", new{id=item.IdRoadEvent})
                                 @Html.ActionLink("Відхилити", "RejectApplication", new{id=item.IdRoadEvent})
                             </td>
 

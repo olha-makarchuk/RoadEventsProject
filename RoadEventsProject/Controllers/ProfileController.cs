@@ -114,10 +114,10 @@ namespace RoadEventsProject.Controllers
 
                         //string[] link = await googleDrive.UploadVideoInPartsAsync(fileName, newevent.Video, ".mp4", "video/mp4");
                         //await googleDrive.CompressVideoTo720pAsync(newevent.Video);
-                        /*video.VideoUrl = link;
+                        video.VideoUrl = link;
                         _context.Add(video);
                         _context.SaveChanges();
-                        roadEvent.IdVideo = video.IdVideo;*/
+                        roadEvent.IdVideo = video.IdVideo;
                     }
 
                     _context.Update(roadEvent);

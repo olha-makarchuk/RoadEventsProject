@@ -1,0 +1,159 @@
+﻿@model RoadEventsProject.Models.ViolationAndTypesModel
+
+@{
+    ViewData["Title"] = "AllApplications";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .left-column {
+            margin: 0;
+            float: left;
+            width: 20%;
+            height: 95vh;
+            background-color: black;
+            color: white;
+        }
+
+        .right-column1 {
+            margin: 0;
+            float: left;
+            width: 30%;
+            height: 95vh;
+            background-color: white;
+            color: black;
+        }
+
+        .right-column2 {
+            margin: 0;
+            float: left;
+            width: 30%;
+            height: 95vh;
+            background-color: white;
+            color: black;
+        }
+
+        .column-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .divider {
+            height: 0.5px;
+            width: 80%;
+            background-color: white;
+            margin: 15px;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .btn {
+            display: block;
+            margin-bottom: 2px;
+            margin-left: 2px;
+        }
+
+        .aspforms {
+            font-size: 16px;
+            font-weight: bold;
+            color: #919191;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+<div class="left-column">
+        <div style="padding-left:25px; font-size:24px; color:white; font-weight:bold; margin-top:30px;">
+            <p>Панель</p>
+            <p>Управління</p>
+        </div>
+
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Admin" asp-action="MainView" class="btn aspforms">ГОЛОВНА</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Admin" asp-action="AllApplications" class="btn aspforms">ВСІ ЗАЯВИ</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Admin" asp-action="AllViolations" class="aspforms btn">ВСІ ПОРУШЕННЯ</a>
+        <div class="divider"></div>
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
+    </div>
+    <div class="right-column2" style="margin-left:10%">
+        <p>Оформлення порушення</p>
+        <form asp-action="CreateViolation" method="post" enctype="multipart/form-data" class="text-border">
+            <input type="hidden" asp-for="ViolationModel.IdUser" />
+            <div class="form-group">
+                <label for="IdRoadEvent">Id заяви на яке спирається порушення:</label>
+                <textarea id="IdRoadEvent" name="IdRoadEvent" class="form-control" readonly>@Model.ViolationModel.IdRoadEvent</textarea>
+                <input type="hidden" asp-for="ViolationModel.IdRoadEvent" />
+                <span asp-validation-for="ViolationModel.IdRoadEvent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="DateEvent">Дата:</label>
+                <textarea id="DateEvent" name="DateEvent" class="form-control" readonly>@Model.ViolationModel.DateEvent</textarea>
+                <input type="hidden" asp-for="ViolationModel.DateEvent" />
+                <span asp-validation-for="ViolationModel.DateEvent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="NameCityVillage">Область:</label>
+                <textarea id="NameRegion" name="NameRegion" class="form-control" readonly>@Model.ViolationModel.IdCityVillageNavigation.IdRegionNavigation.NameRegion</textarea>
+                <input type="hidden" asp-for="ViolationModel.IdRoadEvent"/>
+                <span asp-validation-for="ViolationModel.IdCityVillageNavigation.IdRegionNavigation.NameRegion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="NameCityVillage">Місто/Село:</label>
+                <textarea id="NameCityVillage" name="NameCityVillage" class="form-control" readonly>@Model.ViolationModel.IdCityVillageNavigation.NameCityVillage</textarea>
+                <input type="hidden" asp-for="ViolationModel.IdCityVillage" />
+                <span asp-validation-for="ViolationModel.IdCityVillageNavigation.NameCityVillage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Типи порушень:</label>
+                @foreach (var violationType in Model.TypesModel)
+                {
+                    <div>
+                        <input type="checkbox" id="chkViolationType_@violationType.IdType" name="SelectedViolationTypes" value="@violationType.IdType">
+                        <label for="chkViolationType_@violationType.IdType">@violationType.NameType</label>
+                    </div>
+                }
+                <span asp-validation-for="SelectedViolationTypes" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" style="margin:10px">
+                <label>Штраф:</label>
+                <input asp-for="ViolationModel.Fine" class="form-control" />
+                <span asp-validation-for="ViolationModel.Fine" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="VehicleNumber">Номер автомобіля:</label>
+                <input asp-for="NumberCar" class="form-control" />
+                <span asp-validation-for="NumberCar" class="text-danger"></span>
+            </div>
+
+            <button type="submit">Submit</button>
+
+        </form>
+    </div>
+    <div class="clearfix"></div>
+</body>
+</html>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Hide all dropdowns initially (if not needed, remove this part)
+        $('[id^=SelectedTypeIds]').hide();
+    });
+    
+</script>

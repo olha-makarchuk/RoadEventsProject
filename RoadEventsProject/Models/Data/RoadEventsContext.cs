@@ -41,10 +41,11 @@ public partial class RoadEventsContext : DbContext
 
     public virtual DbSet<Violation> Violations { get; set; }
 
+    public virtual DbSet<ViolationTypesConnected> ViolationTypesConnecteds { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        // => optionsBuilder.UseSqlServer("Server=Olha_Makarchuk\\SQLEXPRESS; Database =RoadEvents;Trusted_Connection=True; TrustServerCertificate=True;");
-        => optionsBuilder.UseSqlServer("Data Source=SQL5111.site4now.net;Initial Catalog=db_aa0c4f_olha01;User Id=db_aa0c4f_olha01_admin;Password=olhanator0108;");
+        => optionsBuilder.UseSqlServer("Server=OLHA_MAKARCHUK\\SQLEXPRESS;Database=RoadEvents;User=UserNew;Password=12345;Trusted_Connection=True; TrustServerCertificate=True");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CityVillage>(entity =>
@@ -177,10 +178,6 @@ public partial class RoadEventsContext : DbContext
             entity.Property(e => e.NameType)
                 .HasMaxLength(30)
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.IdViolationNavigation).WithMany(p => p.TypeViolations)
-                .HasForeignKey(d => d.IdViolation)
-                .HasConstraintName("FK_TypeViolation_Violation");
         });
 
         modelBuilder.Entity<UserInfo>(entity =>
@@ -195,10 +192,6 @@ public partial class RoadEventsContext : DbContext
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-
-            entity.Property(e => e.Blocked)
-    .HasMaxLength(1)
-    .IsUnicode(false);
 
             entity.HasOne(d => d.IdNameNavigation).WithMany(p => p.UserInfos)
                 .HasForeignKey(d => d.IdName)
@@ -267,9 +260,23 @@ public partial class RoadEventsContext : DbContext
                 .HasConstraintName("FK_Violation_Vehicle");
         });
 
+        modelBuilder.Entity<ViolationTypesConnected>(entity =>
+        {
+            entity.HasKey(e => e.IdViolationTypesConnected).HasName("PK_IdViolationTypesConnected");
+
+            entity.ToTable("ViolationTypesConnected");
+
+            entity.HasOne(d => d.IdTypeNavigation).WithMany(p => p.ViolationTypesConnecteds)
+                .HasForeignKey(d => d.IdType)
+                .HasConstraintName("FK_ViolationTypesConnected_TypeViolation");
+
+            entity.HasOne(d => d.IdViolationNavigation).WithMany(p => p.ViolationTypesConnecteds)
+                .HasForeignKey(d => d.IdViolation)
+                .HasConstraintName("FK_ViolationTypesConnected_Violation");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-

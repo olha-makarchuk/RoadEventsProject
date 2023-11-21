@@ -31,5 +31,5 @@ public partial class Violation
 
     public virtual Vehicle IdVehicleNavigation { get; set; } = null!;
 
-    public virtual ICollection<TypeViolation> TypeViolations { get; set; } = new List<TypeViolation>();
+    public virtual ICollection<ViolationTypesConnected> ViolationTypesConnecteds { get; set; } = new List<ViolationTypesConnected>();
 }

@@ -36,7 +36,8 @@ public class GoogleDrive
         });
     }
 
-public async Task<string> UploadAsync(string nameFile, IFormFile photo, string format, string contentType)
+    // Async Upload Method
+    public async Task<string> UploadAsync(string nameFile, IFormFile photo, string format, string contentType)
     {
         var fileMetadata = new Google.Apis.Drive.v3.Data.File()
         {
@@ -46,19 +47,11 @@ public async Task<string> UploadAsync(string nameFile, IFormFile photo, string f
 
         using (var memoryStream = new MemoryStream())
         {
-            // Compress file content
-            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
-            {
-                var entry = archive.CreateEntry($"{nameFile}{format}", CompressionLevel.Optimal);
-                using (var entryStream = entry.Open())
-                {
-                    await photo.CopyToAsync(entryStream);
-                }
-            }
+            await photo.CopyToAsync(memoryStream);
 
-            // Reset the memory stream position to beginning
-            memoryStream.Seek(0, SeekOrigin.Begin);
+            memoryStream.Position = 0; // Reset position after writing
 
+            // Upload file to Drive
             var request = service.Files.Create(fileMetadata, memoryStream, contentType);
             request.Fields = "id";
             var results = await request.UploadAsync(CancellationToken.None);
