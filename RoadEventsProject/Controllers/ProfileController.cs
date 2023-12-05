@@ -18,11 +18,31 @@ namespace RoadEventsProject.Controllers
             _context = context;
             _env = env;
         }
-        public IActionResult MainView()
+        public async Task<IActionResult> MainViewAsync()
         {
-            return View();
-        }
+            int totalRequests = 100;
+            int acceptedRequests = 70;
+            int rejectedRequests = 30;
 
+            ViewBag.TotalRequests = totalRequests;
+            ViewBag.AcceptedRequests = acceptedRequests;
+            ViewBag.RejectedRequests = rejectedRequests;
+
+            int iduser = 0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+            var user = await _context.UserInfos.Where(u => u.IdUser == iduser).Include(re => re.IdNameNavigation).FirstOrDefaultAsync();
+
+            return View(user);
+        }
+        [HttpGet]
+        public IActionResult GetChartData()
+        {
+            // Поверніть дані гістограми у форматі JSON
+            return Json(new { percentage = 70 }); // Приклад: 70% прийнятих
+        }
         public async Task<IActionResult> MyProfile()
         {
             int iduser=0;
@@ -139,6 +159,7 @@ namespace RoadEventsProject.Controllers
         public IActionResult MyApplication(int idstatus, DateOnly date)
         {
             DateOnly dateEq = new();
+            DateTime dateTime = new(date.Year, date.Month, date.Day);
             int iduser = 0;
             if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
             {
@@ -150,16 +171,20 @@ namespace RoadEventsProject.Controllers
             {
                 applications = _context.RoadEvents
                 .Where(re => re.IdUser == iduser)
-                .Where(re => re.DateEvent.Date.Equals(date))
+                .Where(re => re.DateEvent.Date.Equals(dateTime))
                 .Include(re => re.IdCityVillageNavigation)
                 .Include(re => re.IdImageNavigation)
                 .Include(re => re.IdStatusNavigation)
                 .Include(re => re.IdUserNavigation)
                 .Include(re => re.IdVideoNavigation)
                 .ToList();
-                if(applications.Count == 0)
+                if (applications.Count == 0)
                 {
                     ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
+                    return View(applications);
+                }
+                else
+                {
                     return View(applications);
                 }
             }
@@ -174,8 +199,12 @@ namespace RoadEventsProject.Controllers
                 .Include(re => re.IdVideoNavigation)
                 .ToList();
             }
-            ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
 
+            if(date == dateEq)
+            {
+                return View(applications);
+            }
+            ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
             return View(applications);
         }
 

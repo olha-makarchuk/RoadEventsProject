@@ -115,6 +115,7 @@ namespace RoadEventsProject.Controllers
         {
             ViewBag.TypeViolation = await _context.TypeViolations.ToListAsync();
             ViewBag.VehiclesAll = await _context.Vehicles.Include(u => u.IdDriverNavigation).ToListAsync();
+            model.TypesModel = await _context.TypeViolations.ToListAsync();
 
             int iduser = 0;
             if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
@@ -148,7 +149,7 @@ namespace RoadEventsProject.Controllers
                         return RedirectToAction(nameof(AllApplications));
                     }
                 }
-                if (model.SelectedViolationTypes.Count ==0)
+                if (model.SelectedViolationTypes == null)
                 {
                     ModelState.AddModelError("SelectedViolationTypes", "Не вибрано жодного  типу порушення");
                     return View(model);

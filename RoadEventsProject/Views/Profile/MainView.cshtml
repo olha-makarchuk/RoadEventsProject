@@ -1,8 +1,9 @@
-﻿@model RoadEventsProject.Models.LoginUserModel
+﻿@model RoadEventsProject.Models.Data.UserInfo
 
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Лінійчаста діаграма</title>
     <style>
         body {
             margin: 0;
@@ -23,7 +24,6 @@
             float: left;
             width: 60%;
             height: 95vh;
-            background-color: white;
             color: black;
         }
 
@@ -60,9 +60,54 @@
             color: #919191;
             text-align: left;
         }
+
+        .chart-container {
+            width: 100%;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .squareBlock {
+            background-color: rgb(65,105,225,0.3);
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .text-border {
+            color: white;
+            text-shadow: 2px 2px 2px black, 0 2px 2px black, -2px 0 2px black, 0 -2px 2px black;
+        }
+
+        .text-bordercolor {
+            border: 1px solid rgba(0, 0, 0);
+            padding: 5px;
+        }
+
+        .squareBlockText {
+            background-color: rgba(65, 105, 225, 0.3);
+            display: block;
+            padding: 10px;
+            margin: 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            width: 80%;
+        }
+
+        .text-blue {
+            color: white;
+            text-shadow: 2px 2px 2px black, 0 2px 2px black, -2px 0 2px black, 0 -2px 2px black; /* Встановлює білу обводку тексту */
+        }
     </style>
 </head>
-<body>
+<body style="background: url('/images/16.jpg');background-size: 100% 100%;">
     <div class="left-column">
         <div style="padding-left:25px; font-size:24px; color:white; font-weight:bold; margin-top:30px;">
             <p>Заголовок</p>
@@ -81,9 +126,81 @@
     </div>
 
     <div class="right-column">
-        <p>fghjkgggggg</p>
-    </div>
+        <div class="squareBlockText" style=" margin-top:5%; margin-left:12%; width: 100%; ">
+            <div class="text-center" style="margin-top:10px">
+                <div>
+                    <h1 class="content_style text-blue">Вітаємо, @Model.IdNameNavigation.LastName @Model.IdNameNavigation.FirstName @Model.IdNameNavigation.MiddleName !</h1>
+                </div>
+            </div>
+        </div>
 
+        <div class="squareBlock" style="margin-top:10%; margin-left:17%;  width: 90%; ">
+        <div class="chart-container" style="margin-top:3%">
+                <h2 class="text-border" style="font-weight:bold">Загальна статистика:</h2>
+                <h4 class="text-border" style="text-align:center; margin-top:3%">Кількість заяв: @(Convert.ToInt32(ViewBag.RejectedRequests) + Convert.ToInt32(ViewBag.AcceptedRequests))</h4>
+            <canvas id="myChart" width="400" height="100"></canvas>
+        </div>
+        <div>
+                <p class="text-border">
+                    <span class="text-bordercolor" style="display: inline-block; width: 15px; height: 15px; background-color: rgba(0, 255, 0, 0.5); margin-right: 5px;"></span>
+                Кількість прийнятих заяв: @ViewBag.AcceptedRequests
+            </p>
+                <p class="text-border">
+                    <span class="text-bordercolor" style="display: inline-block; width: 15px; height: 15px; background-color: rgba(255, 0, 0, 0.5); margin-right: 5px;"></span>
+                Кількість не прийнятих заяв: @ViewBag.RejectedRequests
+            </p>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            var acceptedRequests = @ViewBag.AcceptedRequests;
+            var rejectedRequests = @ViewBag.RejectedRequests;
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar', 
+                data: {
+                    labels: [''],
+                    datasets: [{
+                        data: [acceptedRequests],
+                        backgroundColor: 'rgba(0, 255, 0, 0.5)',
+                            borderColor: 'black',
+                            borderSkipped: false,
+                        borderWidth: 2,
+                        label: 'Прийняті',
+                        text: acceptedRequests.toString()
+                    }, {
+                        data: [rejectedRequests],
+                        backgroundColor: 'rgba(255, 0, 0, 0.5)',
+                            borderColor: 'black',
+                        borderWidth: 2,
+                        label: 'Не прийняті',
+                        text: acceptedRequests.toString()
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            display: false,
+                            stacked: true,
+                            beginAtZero: true
+                        },
+                        y: {
+                            display: false,
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                            displayColors: false 
+                        }
+                    }
+                }
+            });
+        </script>
+        </div>
+    </div>
     <div class="clearfix"></div>
 </body>
 </html>
