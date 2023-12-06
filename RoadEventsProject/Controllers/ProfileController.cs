@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadEventsProject.Models;
 using RoadEventsProject.Models.Data;
+using System.Drawing;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace RoadEventsProject.Controllers
@@ -18,11 +19,11 @@ namespace RoadEventsProject.Controllers
             _context = context;
             _env = env;
         }
-        public async Task<IActionResult> MainViewAsync()
+        public async Task<IActionResult> MainView()
         {
-            int totalRequests = 100;
-            int acceptedRequests = 70;
-            int rejectedRequests = 30;
+            int totalRequests = _context.RoadEvents.Count();
+            int acceptedRequests = _context.RoadEvents.Count(r => r.IdStatus == 2);
+            int rejectedRequests = _context.RoadEvents.Count(r => r.IdStatus == 3);
 
             ViewBag.TotalRequests = totalRequests;
             ViewBag.AcceptedRequests = acceptedRequests;
@@ -37,6 +38,7 @@ namespace RoadEventsProject.Controllers
 
             return View(user);
         }
+
         [HttpGet]
         public IActionResult GetChartData()
         {
@@ -52,6 +54,11 @@ namespace RoadEventsProject.Controllers
             }
             var user = await _context.UserInfos.Where(u=>u.IdUser==iduser).Include(re => re.IdNameNavigation).FirstOrDefaultAsync();
             RegisterUserModel userModel = new() { FirstName = user.IdNameNavigation.FirstName, MiddleName = user.IdNameNavigation.MiddleName, LastName = user.IdNameNavigation.LastName, UserName=user.LoginUser};
+
+            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
+            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus != null);
+            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == null);
+
             return View(userModel);
         }
 
@@ -67,15 +74,15 @@ namespace RoadEventsProject.Controllers
             var user = await _context.UserInfos.Where(u => u.IdUser == iduser).FirstOrDefaultAsync();
             var username = await _context.Names.Where(n => n.IdName == user.IdName).FirstOrDefaultAsync();
 
-            username.FirstName=userModel.FirstName; 
-            username.LastName=userModel.LastName; 
-            username.MiddleName=userModel.MiddleName;
-
             user.LoginUser = userModel.UserName;
 
             _context.Update(username);
             _context.Update(user);
             _context.SaveChanges();
+
+            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
+            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 2);
+            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 3);
 
             return RedirectToAction("MyProfile");
         }
@@ -133,8 +140,6 @@ namespace RoadEventsProject.Controllers
                         string fileName = $"{iduser}_{roadEvent.IdRoadEvent}";
                         string link = await googleDrive.UploadAsync(fileName, newevent.Video, ".mp4", "video/mp4");
 
-                        //string[] link = await googleDrive.UploadVideoInPartsAsync(fileName, newevent.Video, ".mp4", "video/mp4");
-                        //await googleDrive.CompressVideoTo720pAsync(newevent.Video);
                         video.VideoUrl = link;
                         _context.Add(video);
                         _context.SaveChanges();

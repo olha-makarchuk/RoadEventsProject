@@ -17,6 +17,7 @@
             float: left;
             width: 20%;
             height: 95vh;
+            overflow-y: auto;
             background-color: black;
             color: white;
         }
@@ -28,6 +29,25 @@
             height: 95vh;
             background-color: white;
             color: black;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px; /* Adjust as needed */
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; /* Light grey */
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888; /* Dark grey */
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; /* Blackish grey */
         }
 
         .column-title {
@@ -61,6 +81,17 @@
             text-align: left;
         }
 
+        .tableborder {
+            border: 1px solid #000;
+        }
+
+            .tableborder tr:nth-child(odd) {
+                background-color: #d8ecf3; /* Голубий колір для парних рядків */
+            }
+
+            .tableborder tr:nth-child(even) {
+                background-color: #ffffff; /* Білий колір для непарних рядків */
+            }
     </style>
 </head>
 <body>
@@ -81,7 +112,7 @@
     </div>
 
     <div class="right-column" style="margin-left:2%">
-        <div>
+        <div style="margin-top:10px">
             <form asp-action="AllApplications" method="get">
                 <select name="idstatus">
                     <option value="0">Всі</option>
@@ -99,29 +130,30 @@
             </form>
         </div>
 
-        <div style="height: 90%; overflow: auto;">
-            <table class="table">
+        <h2 style="text-align:center; font-weight:bold">Всі Заяви</h2>
+        <div style="height: 80%; overflow-y: auto;">
+            <table class="table tableborder">
                 <thead>
                     <tr>
-                        <th>
+                        <th class="tableborder">
                             <p>Дата</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Деталі</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Область</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Місто/Село</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Зображення</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Відео</p>
                         </th>
-                        <th>
+                        <th class="tableborder">
                             <p>Користувач</p>
                         </th>
                         <th></th>
@@ -130,22 +162,22 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
-                            <td>
+                        <tr class="tableborder">
+                            <td class="tableborder">
                                 @Html.DisplayFor(modelItem => item.DateEvent)
                             </td>
-                            <td>
+                            <td class="tableborder">
                                 <div style="width: 200px; word-wrap: break-word;">
                                     @Html.DisplayFor(modelItem => item.DescriptionEvent)
                                 </div>
                             </td>
-                            <td>
+                            <td class="tableborder">
                                 @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.IdRegionNavigation.NameRegion)
                             </td>
-                            <td>
+                            <td class="tableborder">
                                 @Html.DisplayFor(modelItem => item.IdCityVillageNavigation.NameCityVillage)
                             </td>
-                            <td>
+                            <td class="tableborder">
                                 @if (item.IdImage != null)
                                 {
                                     <img src="@Html.DisplayFor(modelItem => item.IdImageNavigation.ImageUrl)" class="img" style="width:130px; height:100px;">
@@ -156,7 +188,7 @@
                                 }
                             </td>
 
-                            <td>
+                            <td class="tableborder">
                                 @if (item.IdVideo != null)
                                 {
                                     <video width="130" height="100" controls>
@@ -169,26 +201,26 @@
                                     <p>-</p>
                                 }
                             </td>
-                            <td>
+                            <td class="tableborder">
                                 <a href="#" class="aspforms btn" onclick="showUserInfo(@item.IdUser)">Користувач</a>
                             </td>
 
                             @if (item.IdStatus == 1)
                             {
-                                <td>
+                                <td class="tableborder">
                                     @Html.ActionLink("Підтвердити", "CreateViolation", new{id=item.IdRoadEvent})
                                     @Html.ActionLink("Відхилити", "RejectApplication", new{id=item.IdRoadEvent})
                                 </td>
                             }
                             @if (item.IdStatus == 2)
                             {
-                                <td>
+                                <td class="tableborder">
                                     <p>Заява прийнята</p>
                                 </td>
                             }
                             @if (item.IdStatus == 3)
                             {
-                                <td>
+                                <td class="tableborder">
                                     <p>Заява відхилена</p>
                                     @Html.ActionLink("Прийняти", "CreateViolation", new{id=item.IdRoadEvent})
                                 </td>

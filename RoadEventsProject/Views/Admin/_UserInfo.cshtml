@@ -15,4 +15,10 @@
     {
         <a asp-controller="Admin" asp-route-id="@Model.IdUser" asp-action="UnlockUser" class="btn" style="color: #5085a5">Розблокувати</a>
     }
+
+    <div style="margin-top: 2%">
+        <p>Загальна кількість заяв: @ViewBag.AllApp</p>
+        <p>Прийнята кількість заяв: @ViewBag.AcceptedRequests</p>
+        <p>Відхилена кількість заяв: @ViewBag.RejectedRequests"</p>
+    </div>
 </div>

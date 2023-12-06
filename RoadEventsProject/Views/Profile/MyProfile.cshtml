@@ -21,9 +21,8 @@
         .right-column {
             margin: 0;
             float: left;
-            width: 60%;
+            width: 70%;
             height: 95vh;
-            background-color: white;
             color: black;
         }
 
@@ -62,7 +61,6 @@
         }
 
         .square {
-            background-color: #9aa0a6;
             display: inline-block;
             padding: 10px;
             margin: 0;
@@ -106,7 +104,7 @@
             margin: 0;
             border-radius: 15px;
             backdrop-filter: blur(10px);
-            width: 80%;
+            width: 40%;
         }
 
         .text-border {
@@ -116,7 +114,7 @@
         }
     </style>
 </head>
-<body>
+ <body style="background: url('/images/16.jpg');background-size: 100% 100%;">
     <div class="left-column">
         <div style="padding-left:25px; font-size:24px; color:white; font-weight:bold; margin-top:30px;">
             <p>Заголовок</p>
@@ -135,31 +133,20 @@
     </div>
 
     <div class="right-column">
-        <div class="squareBlockText" style=" margin-top:5%; width: 100%; ">
+        <div class="squareBlockText" style="text-align:center; margin-top:5%; width: 100%; ">
             <div class="text-center" style="margin-top:10px">
                 <div>
-                    <h1 class="content_style text-blue">Заповніть заяву:</h1>
+                    <h1 class="content_style text-blue">Мій Профіль</h1>
                 </div>
             </div>
         </div>
         <div class="squareBlock" style=" margin-left:28%; margin-top:3%; width:45%">
 
             <form asp-action="MyProfile" method="post" enctype="multipart/form-data" class="text-border">
-                <div class="form-group">
-                    <label for="FirstName">Ім'я:</label>
-                    <input type="text" id="FirstName" name="FirstName" class="form-control" value="@Model.FirstName">
-                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                <div>
+                    <p style="font-size:16px">Повне ім'я: @Model.LastName @Model.FirstName @Model.MiddleName</p>
                 </div>
-                <div class="form-group">
-                    <label for="LastName">Прізвище:</label>
-                    <input type="text" id="LastName" name="LastName" class="form-control" value="@Model.LastName">
-                    <span asp-validation-for="LastName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label for="MiddleName">По батькові:</label>
-                    <input type="text" id="MiddleName" name="MiddleName" class="form-control" value="@Model.MiddleName">
-                    <span asp-validation-for="MiddleName" class="text-danger"></span>
-                </div>
+
                 <div class="form-group">
                     <label for="UserName">Логін:</label>
                     <input type="text" id="UserName" name="UserName" class="form-control" value="@Model.UserName">
@@ -167,6 +154,14 @@
                 </div>
                 <button type="submit" class="btn btn-primary" style="text-align:center; margin-top:10px">Зберегти</button>
             </form>
+
+            <div style="font-size:16px; font-weight:bold; margin-top:5%; background-color:rgb(204, 230, 255); border-radius: 8px;">
+                <p style="text-align:center">Особиста статистика:</p>
+                <p>Загальна кількість поданих заяв: @ViewBag.AllApp</p>
+                <p>Кількість прийнятих заяв: @ViewBag.AcceptedRequests</p>
+                <p>Кількість відхилених заяв: @ViewBag.RejectedRequests</p>
+            </div>
+
         </div>
     </div>
 

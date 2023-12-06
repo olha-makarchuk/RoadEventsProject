@@ -18,9 +18,27 @@ namespace RoadEventsProject.Controllers
         {
             _context = context;
         }
-        public IActionResult MainView()
+
+        public async Task<IActionResult> MainViewAsync()
         {
-            return View();
+            int totalRequests = _context.RoadEvents.Count();
+            int acceptedRequests = _context.RoadEvents.Count(r => r.IdStatus == 2);
+            int rejectedRequests = _context.RoadEvents.Count(r => r.IdStatus == 3);
+
+            ViewBag.TotalRequests = totalRequests;
+            ViewBag.AcceptedRequests = acceptedRequests;
+            ViewBag.RejectedRequests = rejectedRequests;
+
+            int iduser = 0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+            var user = await _context.UserInfos.Where(u => u.IdUser == iduser).Include(re => re.IdNameNavigation).FirstOrDefaultAsync();
+            
+            ViewBag.unprocessedCount = _context.RoadEvents.Count(e => e.IdStatus == 1);
+
+            return View(user);
         }
 
         public async Task<IActionResult> AllApplications(int idstatus, int idUser)
@@ -216,6 +234,12 @@ namespace RoadEventsProject.Controllers
             var userInfo = await _context.UserInfos.Where(u => u.IdUser == user)
                 .Include(u=>u.IdNameNavigation)
                 .FirstOrDefaultAsync();
+
+
+            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == user);
+            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == user && r.IdStatus == 2);
+            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == user && r.IdStatus == 3);
+
             userId = userInfo.IdUser;
             Response.Cookies.Append("IdUserApplication", userInfo.IdUser.ToString());
             return PartialView("_UserInfo", userInfo);
@@ -237,6 +261,11 @@ namespace RoadEventsProject.Controllers
                 _context.Update(user);
                 _context.SaveChanges();
             }
+
+            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
+            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 2);
+            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 3);
+
             return PartialView("_UserInfo", user);
         }
 
@@ -256,6 +285,11 @@ namespace RoadEventsProject.Controllers
                 _context.Update(user);
                 _context.SaveChanges();
             }
+
+            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
+            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 2);
+            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 3);
+
             return PartialView("_UserInfo", user);
         }
     }
