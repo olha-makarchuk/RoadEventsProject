@@ -39,5 +39,13 @@ namespace RoadEventsProject.DAL.Repositories
                 .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
                 .ToListAsync();
         }
+        public async Task<List<Vehicle>> GetVehicleWithDrivers()
+        {
+            return await _context.Vehicles.Include(u => u.IdDriverNavigation).ToListAsync();
+        }
+        public async Task<List<TypeViolation>> GetAllTypes()
+        {
+            return await _context.TypeViolations.ToListAsync();
+        }
     }
 }

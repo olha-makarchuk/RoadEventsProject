@@ -35,5 +35,13 @@ namespace RoadEventsProject.BLL.Services
         {
             return await _violationRepository.AddAsync(violation);
         }
+        public async Task<List<Vehicle>> GetVehicleWithDrivers()
+        {
+            return await _violationRepository.GetVehicleWithDrivers();
+        }
+        public async Task<List<TypeViolation>> GetAllTypes()
+        {
+            return await _violationRepository.GetAllTypes();
+        }
     }
 }

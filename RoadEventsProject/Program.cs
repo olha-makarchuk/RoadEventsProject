@@ -6,14 +6,10 @@ using RoadEventsProject.BLL.Services.Base;
 using RoadEventsProject.DAL.DBContext;
 using RoadEventsProject.DAL.Repositories;
 using RoadEventsProject.DAL.Repositories.Base;
-using RoadEventsProject.Models.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<RoadEventContext>(
-    options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDbContext<RoadEventsContext>(
     options => options.UseSqlServer(
@@ -22,18 +18,14 @@ builder.Services.AddDbContext<RoadEventsContext>(
 builder.Services.AddScoped<IRoadEventsRepository, RoadEventsRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IViolationRepository, ViolationRepository>();
-builder.Services.AddScoped<IVehiclesRepository, VehiclesRepository>();
 builder.Services.AddScoped<IViolationTypesConnectedsRepository, ViolationTypesConnectedsRepository>();
-builder.Services.AddScoped<ITypeViolationRepository, TypeViolationRepository>();
 builder.Services.AddScoped<IPhotoVideoRepository, PhotoVideoRepository>();
 
 
 builder.Services.AddScoped<IRoadEventsService, RoadEventsService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IViolationService, ViolationService>();
-builder.Services.AddScoped<IVehiclesService, VehiclesService>();
 builder.Services.AddScoped<IViolationTypesConnectedsService, ViolationTypesConnectedsService>();
-builder.Services.AddScoped<ITypeViolationService, TypeViolationService>();
 builder.Services.AddScoped<IPhotoVideoService, PhotoVideoService>();
 
 builder.Services.AddControllersWithViews();

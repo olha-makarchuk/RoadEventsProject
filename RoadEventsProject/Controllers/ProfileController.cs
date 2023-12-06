@@ -1,7 +1,9 @@
 ﻿using Elfie.Serialization;
+using Google.Apis.Drive.v3.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RoadEventsProject.BLL.DTO;
 using RoadEventsProject.BLL.Services.Base;
 using RoadEventsProject.DAL.Entities;
 using RoadEventsProject.Models;
@@ -29,11 +31,7 @@ namespace RoadEventsProject.Controllers
             ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequests();
             ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequests();
 
-            int iduser = 0;
-            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
+            int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
 
             ViewBag.unprocessedCount = await _roadEventsService.GetUnprocessedRequests();
@@ -43,43 +41,23 @@ namespace RoadEventsProject.Controllers
 
         public async Task<IActionResult> MyProfile()
         {
-            int iduser=0;
-            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
+            int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
-            RegisterUserModel userModel = new() { FirstName = user.IdNameNavigation.FirstName, MiddleName = user.IdNameNavigation.MiddleName, LastName = user.IdNameNavigation.LastName, UserName=user.LoginUser};
 
-            ViewBag.AllApp = await _roadEventsService.GetTotalRequestsByUser(iduser);
-            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequestsByUser(iduser);
-            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequestsByUser(iduser);
+            RegisterUserModel_ userModel = new() { FirstName = user.IdNameNavigation.FirstName, MiddleName = user.IdNameNavigation.MiddleName, LastName = user.IdNameNavigation.LastName, UserName=user.LoginUser};
+            CreateViewBagAppByUserId(iduser);
 
             return View(userModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> MyProfile(RegisterUserModel userModel)
+        public async Task<IActionResult> MyProfile(RegisterUserModel_ userModel)
         {
-            int iduser = 0;
-            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
-
+            int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
-            //
-            //var userName = user.IdNameNavigation;
-            //var username = await _context.Names.Where(n => n.IdName == user.IdName).FirstOrDefaultAsync();
-
             user.LoginUser = userModel.UserName;
-
-            //_context.Update(userName);
             await _userService.Update(user);
-
-            ViewBag.AllApp = await _roadEventsService.GetTotalRequestsByUser(iduser);
-            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequestsByUser(iduser);
-            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequestsByUser(iduser);
+            CreateViewBagAppByUserId(iduser);
 
             return RedirectToAction("MyProfile");
         }
@@ -97,50 +75,32 @@ namespace RoadEventsProject.Controllers
         [RequestFormLimits(ValueLengthLimit = 50 * 1024 * 1024)]
         public async Task<IActionResult> FillInApplication(Event newevent)
         {
-            GoogleDrive googleDrive = new();
-
             if(ModelState.IsValid)
             {
                 if(newevent.Video!=null || newevent.Photo!=null)
                 {
-                    int iduser = 0;
-                    RoadEvent roadEvent = new RoadEvent();
+                    int iduser = GetIdUserCookie();
+                    var list = await _roadEventsService.CreateApp(newevent, iduser);
+
                     Image image = new Image();
                     Video video = new Video();
-                    if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
-                    {
-                        iduser = int.Parse(idCookie);
-                    }
 
-                    roadEvent.IdUser = iduser;
-                    roadEvent.IdStatus = 1;
-                    roadEvent.IdCityVillage = newevent.IdCityVillage;
-                    roadEvent.DateEvent = newevent.DateEvent;
-                    roadEvent.DescriptionEvent = newevent.DescriptionEvent;
-
-                    await _roadEventsService.AddAsync(roadEvent);
+                    var roadEvent = await _roadEventsService.GetAppById(Convert.ToInt32(list[0]));
 
                     if (newevent.Photo != null)
                     {
-                        string fileName = $"{iduser}_{roadEvent.IdRoadEvent}";
-                        string link =await googleDrive.UploadAsync(fileName, newevent.Photo, ".jpeg", "image/jpeg");
-
-                        image.ImageUrl = link;
+                        image.ImageUrl = list[1];
                         await _photoVideoService.AddPhotoAsync(image);
                         roadEvent.IdImage = image.IdImage;
                     }
                 
                     if (newevent.Video != null)
                     {
-                        string fileName = $"{iduser}_{roadEvent.IdRoadEvent}";
-                        string link = await googleDrive.UploadAsync(fileName, newevent.Video, ".mp4", "video/mp4");
-
-                        video.VideoUrl = link;
+                        video.VideoUrl = list[2];
                         await _photoVideoService.AddVideoAsync(video);
                         roadEvent.IdVideo = video.IdVideo;
                     }
-
-                    await _roadEventsService.AddAsync(roadEvent);
+                    await _roadEventsService.Update(roadEvent);
 
                     TempData["SuccessMessage"] = "Дякуємо за вашу заяву!";
                 }
@@ -158,11 +118,7 @@ namespace RoadEventsProject.Controllers
         {
             DateOnly dateEq = new();
             DateTime dateTime = new(date.Year, date.Month, date.Day);
-            int iduser = 0;
-            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
+            int iduser = GetIdUserCookie();
 
             List<RoadEvent> applications = new List<RoadEvent>(); 
             if(date != dateEq)
@@ -192,6 +148,29 @@ namespace RoadEventsProject.Controllers
             return View(applications);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetCitiesVillages(int regionId)
+        {
+            var cities = await _roadEventsService.GetCitiesVillagesByRegion(regionId);
 
+            return Json(cities);
+        }
+
+        private async void CreateViewBagAppByUserId(int iduser)
+        {
+            ViewBag.AllApp = await _roadEventsService.GetTotalRequestsByUser(iduser);
+            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequestsByUser(iduser);
+            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequestsByUser(iduser);
+        }
+
+        private int GetIdUserCookie()
+        {
+            int iduser = 0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+            return iduser;
+        }
     }
 }

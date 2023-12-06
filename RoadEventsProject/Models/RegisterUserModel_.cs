@@ -1,6 +1,6 @@
 ﻿namespace RoadEventsProject.Models
 {
-    public class RegisterUserModel
+    public class RegisterUserModel_
     {
         public string FirstName {  get; set; }
         public string MiddleName {  get; set; }

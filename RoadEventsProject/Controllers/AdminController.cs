@@ -16,22 +16,16 @@ namespace RoadEventsProject.Controllers
         private IRoadEventsService _roadEventsService;
         private IUserService _userService;
         private IViolationService _violationServices;
-        private ITypeViolationService _typeViolationService;
-        private IVehiclesService _vehiclesService;
         private IViolationTypesConnectedsService _violationTypesConnectedService;
         public int userId { get; set; }
 
         public AdminController(IConfiguration configuration, IUserService userService, IRoadEventsService roadEventsService, 
-            IViolationService violationServices, ITypeViolationService typeViolationService
-            , IVehiclesService vehiclesService, IViolationTypesConnectedsService violationTypesConnectedsService)
+            IViolationService violationServices, IViolationTypesConnectedsService violationTypesConnectedsService)
         {
-            _vehiclesService = vehiclesService;
-            _typeViolationService = typeViolationService;
             _userService = userService;
             _roadEventsService = roadEventsService;
             _configuration = configuration;
             _violationServices = violationServices;
-            _typeViolationService = typeViolationService;
             _violationTypesConnectedService = violationTypesConnectedsService;
         }
 
@@ -41,11 +35,7 @@ namespace RoadEventsProject.Controllers
             ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequests();
             ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequests();
 
-            int iduser = 0;
-            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
+            int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
 
             ViewBag.unprocessedCount = await _roadEventsService.GetUnprocessedRequests();
@@ -99,7 +89,7 @@ namespace RoadEventsProject.Controllers
 
             var model = new ViolationAndTypesModel();
             model.ViolationModel = new Violation();
-            model.TypesModel = await _typeViolationService.GetAll();
+            model.TypesModel = await _violationServices.GetAllTypes();
 
             model.ViolationModel.DateEvent = roadEvent.DateEvent;
             model.ViolationModel.IdRoadEvent = roadEvent.IdRoadEvent;
@@ -108,7 +98,7 @@ namespace RoadEventsProject.Controllers
             model.ViolationModel.IdCityVillageNavigation = roadEvent.IdCityVillageNavigation;
 
             ViewBag.TypeViolation = model.TypesModel;
-            ViewBag.VehiclesAll = await _vehiclesService.GetVehicleWithDrivers();
+            ViewBag.VehiclesAll = await _violationServices.GetVehicleWithDrivers();
 
             return View(model);
         }
@@ -116,17 +106,13 @@ namespace RoadEventsProject.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateViolation(ViolationAndTypesModel model)
         {
-            var vehicles = await _vehiclesService.GetVehicleWithDrivers();
-            model.TypesModel = await _typeViolationService.GetAll();
+            var vehicles = await _violationServices.GetVehicleWithDrivers();
+            model.TypesModel = await _violationServices.GetAllTypes();
 
             ViewBag.TypeViolation = model.TypesModel;
             ViewBag.VehiclesAll = vehicles;
 
-            int iduser = 0;
-            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
+            int iduser = GetIdUserCookie();
 
             if (model.ViolationModel != null)
             {
@@ -217,12 +203,7 @@ namespace RoadEventsProject.Controllers
 
         public async Task<IActionResult> BlockUser()
         {
-            int iduser = 0;
-            if (Request.Cookies.TryGetValue("IdUserApplication", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
-
+            int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
 
             GetViewBagUserInfo(iduser);
@@ -238,12 +219,7 @@ namespace RoadEventsProject.Controllers
 
         public async Task<IActionResult> UnlockUser()
         {
-            int iduser = 0;
-            if (Request.Cookies.TryGetValue("IdUserApplication", out string idCookie))
-            {
-                iduser = int.Parse(idCookie);
-            }
-
+            int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
 
             if (user!= null)
@@ -262,6 +238,16 @@ namespace RoadEventsProject.Controllers
             ViewBag.AllApp = _roadEventsService.GetAppByUser(userInfo);
             ViewBag.AcceptedRequests = _roadEventsService.GetAcceptedRequestsByUser(userInfo);
             ViewBag.RejectedRequests = _roadEventsService.GetRejectedRequestsByUser(userInfo);
+        }
+
+        private int GetIdUserCookie()
+        {
+            int iduser = 0;
+            if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
+            {
+                iduser = int.Parse(idCookie);
+            }
+            return iduser;
         }
     }
 

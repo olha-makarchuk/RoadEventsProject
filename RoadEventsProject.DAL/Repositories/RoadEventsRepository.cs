@@ -53,6 +53,10 @@ namespace RoadEventsProject.DAL.Repositories
         {
             return await _context.Regions.ToListAsync();
         }
+        public async Task<List<CityVillage>> GetCitiesVillagesByRegion(int regionId)
+        {
+            return await _context.CityVillages.Where(c => c.IdRegion == regionId).ToListAsync();
+        }
 
         public async Task<RoadEvent> GetAppById(int idUser)
         {

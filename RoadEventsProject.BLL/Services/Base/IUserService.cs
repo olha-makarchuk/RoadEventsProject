@@ -1,4 +1,5 @@
-﻿using RoadEventsProject.DAL.Entities;
+﻿using RoadEventsProject.BLL.DTO;
+using RoadEventsProject.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,9 @@ namespace RoadEventsProject.BLL.Services.Base
         Task<List<UserInfo>> GetAllUsers();
         Task<UserInfo> GetUserById(int userId);
         Task<UserInfo> Update(UserInfo user);
-        Task<UserInfo> AddAsync(UserInfo user);
-        Task<Name> AddNameAsync(Name name);
         Task<UserInfo> GetUserByName(string name);
-
+        Task<UserInfo> Register(UserModel model);
+        bool CheckPassword(LoginUserModel model, string userPass);
 
 
     }

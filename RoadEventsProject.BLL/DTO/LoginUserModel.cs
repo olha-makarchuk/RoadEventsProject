@@ -1,4 +1,4 @@
-﻿namespace RoadEventsProject.Models
+﻿namespace RoadEventsProject.BLL.DTO
 {
     public class LoginUserModel
     {

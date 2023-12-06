@@ -11,7 +11,10 @@ namespace RoadEventsProject.DAL.Repositories.Base
     {
         Task<List<Violation>> GetAll();
         Task<List<Violation>> GetViolationsByRoadEvent(int idEvent);
-        Task<Violation> AddAsync(Violation violation); 
+        Task<Violation> AddAsync(Violation violation);
+        Task<List<TypeViolation>> GetAllTypes();
+        Task<List<Vehicle>> GetVehicleWithDrivers();
+
 
     }
 }

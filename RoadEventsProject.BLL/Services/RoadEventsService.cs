@@ -10,6 +10,10 @@ using System.Text;
 using System.Threading.Tasks;
 using RoadEventsProject.DAL.Entities;
 using System.Net.NetworkInformation;
+using Microsoft.Extensions.Logging;
+using RoadEventsProject.BLL.DTO;
+using Google.Apis.Drive.v3.Data;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace RoadEventsProject.BLL.Services
 {
@@ -23,6 +27,40 @@ namespace RoadEventsProject.BLL.Services
             _roadEventsRepositorie = roadEventsRepositorie;
             _config = config;
         }
+
+        public async Task<List<string>> CreateApp(Event newevent, int idUser)
+        {
+            List<string> list = new();
+            GoogleDrive googleDrive = new();
+
+            RoadEvent roadEvent = new RoadEvent();
+            
+
+            roadEvent.IdUser = idUser;
+            roadEvent.IdStatus = 1;
+            roadEvent.IdCityVillage = newevent.IdCityVillage;
+            roadEvent.DateEvent = newevent.DateEvent;
+            roadEvent.DescriptionEvent = newevent.DescriptionEvent;
+
+            await _roadEventsRepositorie.AddAsync(roadEvent);
+
+            list.Add(roadEvent.IdRoadEvent.ToString());
+
+            if (newevent.Photo != null)
+            {
+                string fileName = $"{idUser}_{roadEvent.IdRoadEvent}";
+                string link = await googleDrive.UploadAsync(fileName, newevent.Photo, ".jpeg", "image/jpeg");
+                list.Add(link);
+            }
+            if (newevent.Video != null)
+            {
+                string fileName = $"{idUser}_{roadEvent.IdRoadEvent}";
+                string link = await googleDrive.UploadAsync(fileName, newevent.Video, ".mp4", "video/mp4");
+                list.Add(link);
+            }
+            return list;
+        }
+
 
         public async Task<int> GetAcceptedRequests()
         {
@@ -107,6 +145,11 @@ namespace RoadEventsProject.BLL.Services
         public async Task<List<Region>> GetAllRegions()
         {
             return await _roadEventsRepositorie.GetAllRegions();
+        }
+
+        public async Task<List<CityVillage>> GetCitiesVillagesByRegion(int regionId)
+        {
+            return await _roadEventsRepositorie.GetCitiesVillagesByRegion(regionId);
         }
     }
 }

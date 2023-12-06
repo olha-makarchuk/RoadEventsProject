@@ -12,6 +12,8 @@ namespace RoadEventsProject.BLL.Services.Base
         Task<List<Violation>> GetAll();
         Task<List<Violation>> GetViolationsByRoadEvent(int idEvent);
         Task<Violation> AddAsync(Violation violation);
+        Task<List<Vehicle>> GetVehicleWithDrivers();
+        Task<List<TypeViolation>> GetAllTypes();
 
 
     }

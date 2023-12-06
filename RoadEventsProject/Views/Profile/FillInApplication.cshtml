@@ -1,4 +1,4 @@
-﻿@model RoadEventsProject.Models.Event
+﻿@model RoadEventsProject.Models.EventModel
 <!DOCTYPE html>
 <html>
 <head>
@@ -209,7 +209,7 @@
                 var regionId = $(this).val();
                 if (regionId) {
                     $.ajax({
-                        url: '/Event/GetCitiesVillages',
+                        url: '/Profile/GetCitiesVillages',
                         data: { regionId: regionId },
                         type: 'GET',
                         success: function (data) {

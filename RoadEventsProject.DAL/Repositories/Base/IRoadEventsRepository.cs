@@ -32,5 +32,6 @@ namespace RoadEventsProject.DAL.Repositories.Base
         Task<List<RoadEvent>> GetAppByUserWithAllDetails(int iduser);
 
         Task<List<Region>> GetAllRegions();
+        Task<List<CityVillage>> GetCitiesVillagesByRegion(int regionId);
     }
 }

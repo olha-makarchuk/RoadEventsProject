@@ -1,6 +1,6 @@
 ﻿namespace RoadEventsProject.Models
 {
-    public class Event
+    public class EventModel
     {
         public IFormFile? Photo { get; set; }
         public IFormFile? Video { get; set; }

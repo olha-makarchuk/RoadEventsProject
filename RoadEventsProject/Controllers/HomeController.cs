@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RoadEventsProject.BLL.DTO;
 using RoadEventsProject.BLL.Services.Base;
 using RoadEventsProject.DAL.Entities;
 using RoadEventsProject.Models;
@@ -19,35 +20,18 @@ namespace RoadEventsProject.Controllers
             _logger = logger;
         }
 
-
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterUserModel model)
+        public async Task<IActionResult> Register(UserModel model)
         {
-            MyObject myObject = new MyObject();
-            myObject.Value = model.Password;
-
             if (ModelState.IsValid)
             {
-                UserInfo userInfo = new UserInfo();
-                Name name = new Name();
-
-                name.FirstName = model.FirstName;
-                name.MiddleName = model.MiddleName;
-                name.LastName = model.LastName;
-                await _userService.AddNameAsync(name);
-
-                userInfo.IdName = name.IdName;
-                userInfo.IdRole = 1;
-                userInfo.LoginUser = model.UserName;
-
-                userInfo.PasswordHash = myObject.GetMd5Hash();
-                await _userService.AddAsync(userInfo);
-
+                await _userService.Register(model);
+                
                 return RedirectToAction("Index");
             }
             return View(model);
@@ -64,12 +48,16 @@ namespace RoadEventsProject.Controllers
         {
             if (ModelState.IsValid)
             {
+                if(model.UserName ==null || model.Password == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Заповніть всі поля");
+                }
                 var user = await _userService.GetUserByName(model.UserName);
                 if (user != null)
                 {
-                    MyObject myObject = new MyObject();
-                    myObject.Value = model.Password;
-                    if (myObject.GetMd5Hash() == user.PasswordHash)
+                    var check = _userService.CheckPassword(model, user.PasswordHash);
+
+                    if (check == true)
                     {
                         if (user.IdRole == 1)
                         {
@@ -98,28 +86,5 @@ namespace RoadEventsProject.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-    }
-    public class MyObject
-    {
-        public string Value { get; set; }
-
-        public string GetMd5Hash()
-        {
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] inputBytes = Encoding.UTF8.GetBytes(Value);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-                StringBuilder builder = new StringBuilder();
-
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    builder.Append(hashBytes[i].ToString("x2"));
-                }
-
-                return builder.ToString();
-            }
-        }
-
     }
 }
