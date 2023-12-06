@@ -1,4 +1,4 @@
-﻿using RoadEventsProject.Models.Data;
+﻿using RoadEventsProject.DAL.Entities;
 
 namespace RoadEventsProject.Models
 {

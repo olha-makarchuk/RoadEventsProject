@@ -2,49 +2,45 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RoadEventsProject.BLL.Services.Base;
+using RoadEventsProject.DAL.Entities;
 using RoadEventsProject.Models;
-using RoadEventsProject.Models.Data;
-using System.Drawing;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace RoadEventsProject.Controllers
 {
     public class ProfileController : Controller
     {
-        private readonly RoadEventsContext _context;
+        private IUserService _userService;
+        private IPhotoVideoService _photoVideoService;
+        private IRoadEventsService _roadEventsService;
         private readonly IWebHostEnvironment _env;
 
-        public ProfileController(RoadEventsContext context, IWebHostEnvironment env)
+        public ProfileController(IWebHostEnvironment env, IPhotoVideoService photoVideoService, IRoadEventsService roadEventsService, IUserService userService)
         {
-            _context = context;
             _env = env;
+            _photoVideoService = photoVideoService;
+            _roadEventsService = roadEventsService;
+            _userService = userService;
         }
+
         public async Task<IActionResult> MainView()
         {
-            int totalRequests = _context.RoadEvents.Count();
-            int acceptedRequests = _context.RoadEvents.Count(r => r.IdStatus == 2);
-            int rejectedRequests = _context.RoadEvents.Count(r => r.IdStatus == 3);
-
-            ViewBag.TotalRequests = totalRequests;
-            ViewBag.AcceptedRequests = acceptedRequests;
-            ViewBag.RejectedRequests = rejectedRequests;
+            ViewBag.TotalRequests = await _roadEventsService.GetTotalRequests();
+            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequests();
+            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequests();
 
             int iduser = 0;
             if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
             {
                 iduser = int.Parse(idCookie);
             }
-            var user = await _context.UserInfos.Where(u => u.IdUser == iduser).Include(re => re.IdNameNavigation).FirstOrDefaultAsync();
+            var user = await _userService.GetUserById(iduser);
+
+            ViewBag.unprocessedCount = await _roadEventsService.GetUnprocessedRequests();
 
             return View(user);
         }
 
-        [HttpGet]
-        public IActionResult GetChartData()
-        {
-            // Поверніть дані гістограми у форматі JSON
-            return Json(new { percentage = 70 }); // Приклад: 70% прийнятих
-        }
         public async Task<IActionResult> MyProfile()
         {
             int iduser=0;
@@ -52,12 +48,12 @@ namespace RoadEventsProject.Controllers
             {
                 iduser = int.Parse(idCookie);
             }
-            var user = await _context.UserInfos.Where(u=>u.IdUser==iduser).Include(re => re.IdNameNavigation).FirstOrDefaultAsync();
+            var user = await _userService.GetUserById(iduser);
             RegisterUserModel userModel = new() { FirstName = user.IdNameNavigation.FirstName, MiddleName = user.IdNameNavigation.MiddleName, LastName = user.IdNameNavigation.LastName, UserName=user.LoginUser};
 
-            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
-            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus != null);
-            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == null);
+            ViewBag.AllApp = await _roadEventsService.GetTotalRequestsByUser(iduser);
+            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequestsByUser(iduser);
+            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequestsByUser(iduser);
 
             return View(userModel);
         }
@@ -71,25 +67,26 @@ namespace RoadEventsProject.Controllers
                 iduser = int.Parse(idCookie);
             }
 
-            var user = await _context.UserInfos.Where(u => u.IdUser == iduser).FirstOrDefaultAsync();
-            var username = await _context.Names.Where(n => n.IdName == user.IdName).FirstOrDefaultAsync();
+            var user = await _userService.GetUserById(iduser);
+            //
+            //var userName = user.IdNameNavigation;
+            //var username = await _context.Names.Where(n => n.IdName == user.IdName).FirstOrDefaultAsync();
 
             user.LoginUser = userModel.UserName;
 
-            _context.Update(username);
-            _context.Update(user);
-            _context.SaveChanges();
+            //_context.Update(userName);
+            await _userService.Update(user);
 
-            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
-            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 2);
-            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 3);
+            ViewBag.AllApp = await _roadEventsService.GetTotalRequestsByUser(iduser);
+            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequestsByUser(iduser);
+            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequestsByUser(iduser);
 
             return RedirectToAction("MyProfile");
         }
 
         public async Task<IActionResult> FillInApplication()
         {
-            var regions = await _context.Regions.ToListAsync();
+            var regions = await _roadEventsService.GetAllRegions();
             ViewBag.Regions = regions;
             return View();
         }
@@ -108,7 +105,7 @@ namespace RoadEventsProject.Controllers
                 {
                     int iduser = 0;
                     RoadEvent roadEvent = new RoadEvent();
-                    Models.Data.Image image = new Models.Data.Image();
+                    Image image = new Image();
                     Video video = new Video();
                     if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
                     {
@@ -121,8 +118,7 @@ namespace RoadEventsProject.Controllers
                     roadEvent.DateEvent = newevent.DateEvent;
                     roadEvent.DescriptionEvent = newevent.DescriptionEvent;
 
-                    _context.Add(roadEvent);
-                    _context.SaveChanges();
+                    await _roadEventsService.AddAsync(roadEvent);
 
                     if (newevent.Photo != null)
                     {
@@ -130,8 +126,7 @@ namespace RoadEventsProject.Controllers
                         string link =await googleDrive.UploadAsync(fileName, newevent.Photo, ".jpeg", "image/jpeg");
 
                         image.ImageUrl = link;
-                        _context.Add(image);
-                        _context.SaveChanges();
+                        await _photoVideoService.AddPhotoAsync(image);
                         roadEvent.IdImage = image.IdImage;
                     }
                 
@@ -141,13 +136,11 @@ namespace RoadEventsProject.Controllers
                         string link = await googleDrive.UploadAsync(fileName, newevent.Video, ".mp4", "video/mp4");
 
                         video.VideoUrl = link;
-                        _context.Add(video);
-                        _context.SaveChanges();
+                        await _photoVideoService.AddVideoAsync(video);
                         roadEvent.IdVideo = video.IdVideo;
                     }
 
-                    _context.Update(roadEvent);
-                    _context.SaveChanges();
+                    await _roadEventsService.AddAsync(roadEvent);
 
                     TempData["SuccessMessage"] = "Дякуємо за вашу заяву!";
                 }
@@ -156,12 +149,12 @@ namespace RoadEventsProject.Controllers
                     ModelState.AddModelError(string.Empty, "Завантажте відео або фото");
                 }
             }
-            var regions = _context.Regions.ToList();
+            var regions = await _roadEventsService.GetAllRegions();
             ViewBag.Regions = regions;
             return View();
         }
 
-        public IActionResult MyApplication(int idstatus, DateOnly date)
+        public async Task<IActionResult> MyApplication(int idstatus, DateOnly date)
         {
             DateOnly dateEq = new();
             DateTime dateTime = new(date.Year, date.Month, date.Day);
@@ -174,15 +167,8 @@ namespace RoadEventsProject.Controllers
             List<RoadEvent> applications = new List<RoadEvent>(); 
             if(date != dateEq)
             {
-                applications = _context.RoadEvents
-                .Where(re => re.IdUser == iduser)
-                .Where(re => re.DateEvent.Date.Equals(dateTime))
-                .Include(re => re.IdCityVillageNavigation)
-                .Include(re => re.IdImageNavigation)
-                .Include(re => re.IdStatusNavigation)
-                .Include(re => re.IdUserNavigation)
-                .Include(re => re.IdVideoNavigation)
-                .ToList();
+                applications = await _roadEventsService.GetAppByUserAndDate(iduser, dateTime);
+                
                 if (applications.Count == 0)
                 {
                     ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
@@ -195,14 +181,7 @@ namespace RoadEventsProject.Controllers
             }
             else
             {
-                applications = _context.RoadEvents
-                .Where(re => re.IdUser == iduser)
-                .Include(re => re.IdCityVillageNavigation)
-                .Include(re => re.IdImageNavigation)
-                .Include(re => re.IdStatusNavigation)
-                .Include(re => re.IdUserNavigation)
-                .Include(re => re.IdVideoNavigation)
-                .ToList();
+                applications = await _roadEventsService.GetAppByUserWithAllDetails(iduser);
             }
 
             if(date == dateEq)

@@ -113,7 +113,7 @@
     <div class="right-column" style="margin-left:10%; margin-top:10px">
         <div>
             <form asp-action="AllViolations" method="get">
-            <input type="number" name="idViolation" placeholder="Enter User ID" />
+            <input type="number" name="idEvent" placeholder="Enter User ID" />
             <div>
             <span class="text-danger">
                     @Html.ValidationMessage("idViolationError", new { @class = "text-danger" })

@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using RoadEventsProject.BLL.Services.Base;
+using RoadEventsProject.DAL.Entities;
 using RoadEventsProject.Models;
-using RoadEventsProject.Models.Data;
 using System.Drawing;
 using System.Linq;
 
@@ -11,63 +12,61 @@ namespace RoadEventsProject.Controllers
 {
     public class AdminController : Controller
     {
-        private readonly RoadEventsContext _context;
+        private readonly IConfiguration _configuration;
+        private IRoadEventsService _roadEventsService;
+        private IUserService _userService;
+        private IViolationService _violationServices;
+        private ITypeViolationService _typeViolationService;
+        private IVehiclesService _vehiclesService;
+        private IViolationTypesConnectedsService _violationTypesConnectedService;
         public int userId { get; set; }
 
-        public AdminController(RoadEventsContext context)
+        public AdminController(IConfiguration configuration, IUserService userService, IRoadEventsService roadEventsService, 
+            IViolationService violationServices, ITypeViolationService typeViolationService
+            , IVehiclesService vehiclesService, IViolationTypesConnectedsService violationTypesConnectedsService)
         {
-            _context = context;
+            _vehiclesService = vehiclesService;
+            _typeViolationService = typeViolationService;
+            _userService = userService;
+            _roadEventsService = roadEventsService;
+            _configuration = configuration;
+            _violationServices = violationServices;
+            _typeViolationService = typeViolationService;
+            _violationTypesConnectedService = violationTypesConnectedsService;
         }
 
         public async Task<IActionResult> MainViewAsync()
         {
-            int totalRequests = _context.RoadEvents.Count();
-            int acceptedRequests = _context.RoadEvents.Count(r => r.IdStatus == 2);
-            int rejectedRequests = _context.RoadEvents.Count(r => r.IdStatus == 3);
-
-            ViewBag.TotalRequests = totalRequests;
-            ViewBag.AcceptedRequests = acceptedRequests;
-            ViewBag.RejectedRequests = rejectedRequests;
+            ViewBag.TotalRequests = await _roadEventsService.GetTotalRequests();
+            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequests();
+            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequests();
 
             int iduser = 0;
             if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
             {
                 iduser = int.Parse(idCookie);
             }
-            var user = await _context.UserInfos.Where(u => u.IdUser == iduser).Include(re => re.IdNameNavigation).FirstOrDefaultAsync();
-            
-            ViewBag.unprocessedCount = _context.RoadEvents.Count(e => e.IdStatus == 1);
+            var user = await _userService.GetUserById(iduser);
+
+            ViewBag.unprocessedCount = await _roadEventsService.GetUnprocessedRequests();
 
             return View(user);
         }
 
         public async Task<IActionResult> AllApplications(int idstatus, int idUser)
         {
-            var users = await _context.UserInfos.ToListAsync();
-            List<RoadEvent> events = new List<RoadEvent>();
+            var users = await _userService.GetAllUsers();
+            List<RoadEvent> events = new();
 
             if (users.Exists(u=>u.IdUser == idUser))
             {
-                if (idstatus == 0)//статус
+                if (idstatus == 0)
                 {
-                    events = await _context.RoadEvents
-                    .Where(u => u.IdUser == idUser)
-                    .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-                    .Include(u => u.IdVideoNavigation)
-                    .Include(u => u.IdImageNavigation)
-                    .OrderByDescending(u => u.DateEvent)
-                    .ToListAsync();
+                    events = await _roadEventsService.GetAppByUser(idUser);
                 }
-                else//статус і юзер
+                else
                 {
-                    events = await _context.RoadEvents
-                    .Where(u => u.IdStatus == idstatus)
-                    .Where(u => u.IdUser == idUser)
-                    .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-                    .Include(u => u.IdVideoNavigation)
-                    .Include(u => u.IdImageNavigation)
-                    .OrderByDescending(u => u.DateEvent)
-                    .ToListAsync();
+                    events = await _roadEventsService.GetAppByStatusAndUser(idstatus, idUser);
                 }
                 return View(events);
             }
@@ -78,43 +77,29 @@ namespace RoadEventsProject.Controllers
             }
             if (idstatus != 0)
             {
-                events = await _context.RoadEvents
-                .Where(u => u.IdStatus == idstatus)
-                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-                .Include(u => u.IdVideoNavigation)
-                .Include(u => u.IdImageNavigation)
-                .OrderByDescending(u => u.DateEvent)
-                .ToListAsync();
+                events = await _roadEventsService.GetAppByStatus(idstatus);
             }
             else
             {
-                events = await _context.RoadEvents
-                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-                .Include(u => u.IdVideoNavigation)
-                .Include(u => u.IdImageNavigation)
-                .OrderByDescending(u => u.DateEvent)
-                .ToListAsync();
+                events = await _roadEventsService.GetAllApp();
             }
             return View(events);
         }
 
+        
         public async Task<IActionResult> CreateViolation(int id)
         {
-            var roadEvent = await _context.RoadEvents
-                .Where(a => a.IdRoadEvent == id)
-                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-                .FirstOrDefaultAsync();
+            var roadEvent = await _roadEventsService.GetAppById(id);
 
             if (roadEvent != null)
             {
                 roadEvent.IdStatus = 2;
-                _context.Update(roadEvent);
-                await _context.SaveChangesAsync();
+                await _roadEventsService.Update(roadEvent);
             }
 
             var model = new ViolationAndTypesModel();
             model.ViolationModel = new Violation();
-            model.TypesModel = await _context.TypeViolations.ToListAsync();
+            model.TypesModel = await _typeViolationService.GetAll();
 
             model.ViolationModel.DateEvent = roadEvent.DateEvent;
             model.ViolationModel.IdRoadEvent = roadEvent.IdRoadEvent;
@@ -123,7 +108,7 @@ namespace RoadEventsProject.Controllers
             model.ViolationModel.IdCityVillageNavigation = roadEvent.IdCityVillageNavigation;
 
             ViewBag.TypeViolation = model.TypesModel;
-            ViewBag.VehiclesAll = await _context.Vehicles.Include(u=>u.IdDriverNavigation).ToListAsync();
+            ViewBag.VehiclesAll = await _vehiclesService.GetVehicleWithDrivers();
 
             return View(model);
         }
@@ -131,9 +116,11 @@ namespace RoadEventsProject.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateViolation(ViolationAndTypesModel model)
         {
-            ViewBag.TypeViolation = await _context.TypeViolations.ToListAsync();
-            ViewBag.VehiclesAll = await _context.Vehicles.Include(u => u.IdDriverNavigation).ToListAsync();
-            model.TypesModel = await _context.TypeViolations.ToListAsync();
+            var vehicles = await _vehiclesService.GetVehicleWithDrivers();
+            model.TypesModel = await _typeViolationService.GetAll();
+
+            ViewBag.TypeViolation = model.TypesModel;
+            ViewBag.VehiclesAll = vehicles;
 
             int iduser = 0;
             if (Request.Cookies.TryGetValue("MyIdCookie", out string idCookie))
@@ -144,8 +131,7 @@ namespace RoadEventsProject.Controllers
             if (model.ViolationModel != null)
             {
                 bool ifExist = false;
-                var vehicles = await _context.Vehicles.Include(u => u.IdDriverNavigation).ToListAsync();
-                foreach(var vehicle in vehicles)
+                foreach (var vehicle in vehicles)
                 {
                     if (vehicle.NumberCar == model.NumberCar)
                     {
@@ -153,16 +139,14 @@ namespace RoadEventsProject.Controllers
                         model.ViolationModel.IdDriver = vehicle.IdDriver;
                         model.ViolationModel.IdVehicle = vehicle.IdVehicle;
                         model.ViolationModel.IdUser = iduser;
-                        _context.Add(model.ViolationModel);
-                        _context.SaveChanges();
+                        await _violationServices.AddAsync(model.ViolationModel);
 
                         if (model.SelectedViolationTypes != null)
                         {
                             foreach (var type in model.SelectedViolationTypes)
                             {
-                                _context.Add(new ViolationTypesConnected { IdViolation = model.ViolationModel.IdViolation, IdType = type });
+                                await _violationTypesConnectedService.AddAsync(new ViolationTypesConnected { IdViolation = model.ViolationModel.IdViolation, IdType = type });
                             }
-                            _context.SaveChanges();
                         }
                         return RedirectToAction(nameof(AllApplications));
                     }
@@ -178,48 +162,39 @@ namespace RoadEventsProject.Controllers
             }
             return View(model);
         }
-
+        
 
         public async Task<ActionResult> RejectApplication(int id)
         {
-            var app = await _context.RoadEvents.FirstOrDefaultAsync(a => a.IdRoadEvent == id);
+            var app = await _roadEventsService.GetAppById(id);
 
             if (app != null)
             {
                 app.IdStatus = 3;
-                _context.Update(app);
-                await _context.SaveChangesAsync();
+                await _roadEventsService.Update(app);
             }
             return RedirectToAction(nameof(AllApplications));
         }
-
-        public async Task<IActionResult> AllViolations(int idViolation)
+        
+        public async Task<IActionResult> AllViolations(int idEvent)
         {
             AllViolationsTypesModel model = new();
             List <Violation> violations = new();
-            var types = await _context.ViolationTypesConnecteds
-                .Include(u => u.IdTypeNavigation)
-                .Include(u => u.IdViolationNavigation)
-                .ToListAsync();
+            var types = await _violationTypesConnectedService.GetAllWithItems();
 
             model.Types.AddRange(types);
 
-            if (idViolation == 0)
+            if (idEvent == 0)
             {
-                violations = await _context.Violations
-                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-                .ToListAsync();
+                violations = await _violationServices.GetAll();
             }
             else
             {
-                violations = await _context.Violations
-                .Where(u=>u.IdRoadEvent ==idViolation)
-                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
-                .ToListAsync();
+                violations = await _violationServices.GetViolationsByRoadEvent(idEvent);
 
                 if (violations.Count == 0)
                 {
-                    ModelState.AddModelError("idViolationError", "Не знайдено порушень за заявою id (" + idViolation + ")");
+                    ModelState.AddModelError("idViolationError", "Не знайдено порушень за заявою id (" + idEvent + ")");
                     return View(model);
                 }
             }
@@ -231,14 +206,9 @@ namespace RoadEventsProject.Controllers
 
         public async Task<IActionResult> SeeUser(int user)
         {
-            var userInfo = await _context.UserInfos.Where(u => u.IdUser == user)
-                .Include(u=>u.IdNameNavigation)
-                .FirstOrDefaultAsync();
+            var userInfo = await _userService.GetUserById(user);
 
-
-            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == user);
-            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == user && r.IdStatus == 2);
-            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == user && r.IdStatus == 3);
+            GetViewBagUserInfo(user);
 
             userId = userInfo.IdUser;
             Response.Cookies.Append("IdUserApplication", userInfo.IdUser.ToString());
@@ -252,19 +222,16 @@ namespace RoadEventsProject.Controllers
             {
                 iduser = int.Parse(idCookie);
             }
-            var user = await _context.UserInfos.Where(u=>u.IdUser== iduser)
-                .Include(u => u.IdNameNavigation)
-                .FirstOrDefaultAsync();
+
+            var user = await _userService.GetUserById(iduser);
+
+            GetViewBagUserInfo(iduser);
+
             if (user != null)
             {
                 user.Blocked = true;
-                _context.Update(user);
-                _context.SaveChanges();
+                await _userService.Update(user);
             }
-
-            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
-            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 2);
-            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 3);
 
             return PartialView("_UserInfo", user);
         }
@@ -276,21 +243,25 @@ namespace RoadEventsProject.Controllers
             {
                 iduser = int.Parse(idCookie);
             }
-            var user = await _context.UserInfos.Where(u => u.IdUser == iduser)
-                .Include(u => u.IdNameNavigation)
-                .FirstOrDefaultAsync();
+
+            var user = await _userService.GetUserById(iduser);
+
             if (user!= null)
             {
                 user.Blocked = false;
-                _context.Update(user);
-                _context.SaveChanges();
+                await _userService.Update(user);
             }
 
-            ViewBag.AllApp = _context.RoadEvents.Count(r => r.IdUser == iduser);
-            ViewBag.AcceptedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 2);
-            ViewBag.RejectedRequests = _context.RoadEvents.Count(r => r.IdUser == iduser && r.IdStatus == 3);
+            GetViewBagUserInfo(iduser);
 
             return PartialView("_UserInfo", user);
+        }
+
+        private void GetViewBagUserInfo(int userInfo)
+        {
+            ViewBag.AllApp = _roadEventsService.GetAppByUser(userInfo);
+            ViewBag.AcceptedRequests = _roadEventsService.GetAcceptedRequestsByUser(userInfo);
+            ViewBag.RejectedRequests = _roadEventsService.GetRejectedRequestsByUser(userInfo);
         }
     }
 

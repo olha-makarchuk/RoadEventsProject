@@ -1,6 +1,4 @@
-﻿using RoadEventsProject.Models.Data;
-
-namespace RoadEventsProject.Models
+﻿namespace RoadEventsProject.Models
 {
     public class Event
     {

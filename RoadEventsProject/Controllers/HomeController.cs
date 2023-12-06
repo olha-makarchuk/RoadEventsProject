@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RoadEventsProject.BLL.Services.Base;
+using RoadEventsProject.DAL.Entities;
 using RoadEventsProject.Models;
-using RoadEventsProject.Models.Data;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,12 +11,12 @@ namespace RoadEventsProject.Controllers
 {
     public class HomeController : Controller
     {
+        private IUserService _userService;
         private readonly ILogger<HomeController> _logger;
-        private readonly RoadEventsContext _context;
-        public HomeController(ILogger<HomeController> logger, RoadEventsContext context)
+        public HomeController(ILogger<HomeController> logger, IUserService userService)
         {
+            _userService = userService;
             _logger = logger;
-            _context = context;
         }
 
 
@@ -25,9 +26,8 @@ namespace RoadEventsProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(RegisterUserModel model)
+        public async Task<IActionResult> Register(RegisterUserModel model)
         {
-            var context = new RoadEventsContext();
             MyObject myObject = new MyObject();
             myObject.Value = model.Password;
 
@@ -39,16 +39,14 @@ namespace RoadEventsProject.Controllers
                 name.FirstName = model.FirstName;
                 name.MiddleName = model.MiddleName;
                 name.LastName = model.LastName;
-                context.Add(name);
-                context.SaveChanges();
+                await _userService.AddNameAsync(name);
 
                 userInfo.IdName = name.IdName;
                 userInfo.IdRole = 1;
                 userInfo.LoginUser = model.UserName;
 
                 userInfo.PasswordHash = myObject.GetMd5Hash();
-                context.Add(userInfo);
-                context.SaveChanges();
+                await _userService.AddAsync(userInfo);
 
                 return RedirectToAction("Index");
             }
@@ -66,7 +64,7 @@ namespace RoadEventsProject.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _context.UserInfos.SingleOrDefaultAsync(u => u.LoginUser == model.UserName);
+                var user = await _userService.GetUserByName(model.UserName);
                 if (user != null)
                 {
                     MyObject myObject = new MyObject();

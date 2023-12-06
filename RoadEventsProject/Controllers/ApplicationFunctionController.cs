@@ -4,9 +4,9 @@ namespace RoadEventsProject.Controllers
 {
     public class ApplicationFunctionController
     {
-        private readonly RoadEventsContext _context;
+        private readonly RoadEventContext _context;
 
-        public ApplicationFunctionController(RoadEventsContext context)
+        public ApplicationFunctionController(RoadEventContext context)
         {
             _context = context;
         }

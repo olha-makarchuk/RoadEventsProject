@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using RoadEventsProject.DAL.Entities;
 
-namespace RoadEventsProject.Models.Data;
+namespace RoadEventsProject.DAL.DBContext;
 
 public partial class RoadEventsContext : DbContext
 {
