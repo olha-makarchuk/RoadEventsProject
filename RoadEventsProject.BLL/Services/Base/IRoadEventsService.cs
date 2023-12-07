@@ -31,7 +31,7 @@ namespace RoadEventsProject.BLL.Services.Base
         Task<List<RoadEvent>> GetAppByUserAndDate(int iduser, DateTime dateTime);
         Task<List<RoadEvent>> GetAppByUserWithAllDetails(int iduser);
         Task<List<Region>> GetAllRegions();
-        Task<List<string>> CreateApp(Event newevent, int idUser);
+        Task<string[]> CreateApp(Event newevent, int idUser);
         Task<List<CityVillage>> GetCitiesVillagesByRegion(int regionId);
     }
 }

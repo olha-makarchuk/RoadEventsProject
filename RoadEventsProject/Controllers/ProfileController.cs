@@ -80,23 +80,23 @@ namespace RoadEventsProject.Controllers
                 if(newevent.Video!=null || newevent.Photo!=null)
                 {
                     int iduser = GetIdUserCookie();
-                    var list = await _roadEventsService.CreateApp(newevent, iduser);
+                    var arr = await _roadEventsService.CreateApp(newevent, iduser);
 
                     Image image = new Image();
                     Video video = new Video();
 
-                    var roadEvent = await _roadEventsService.GetAppById(Convert.ToInt32(list[0]));
+                    var roadEvent = await _roadEventsService.GetAppById(Convert.ToInt32(arr[0]));
 
                     if (newevent.Photo != null)
                     {
-                        image.ImageUrl = list[1];
+                        image.ImageUrl = arr[1];
                         await _photoVideoService.AddPhotoAsync(image);
                         roadEvent.IdImage = image.IdImage;
                     }
                 
                     if (newevent.Video != null)
                     {
-                        video.VideoUrl = list[2];
+                        video.VideoUrl = arr[2];
                         await _photoVideoService.AddVideoAsync(video);
                         roadEvent.IdVideo = video.IdVideo;
                     }

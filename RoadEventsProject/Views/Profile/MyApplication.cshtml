@@ -17,6 +17,7 @@
             float: left;
             width: 20%;
             height: 95vh;
+            overflow-y: auto;
             background-color: black;
             color: white;
         }
@@ -28,6 +29,32 @@
             height: 95vh;
             color: black;
         }
+
+            /* Additional styles to ensure scroll stays within the column */
+            .right-column .squareBlock {
+                height: calc(100% - 100px); /* Adjust as needed */
+                overflow-y: auto;
+            }
+
+
+                ::-webkit-scrollbar {
+            width: 10px; /* Adjust as needed */
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; /* Light grey */
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888; /* Dark grey */
+        }
+
+            /* Handle on hover */
+            ::-webkit-scrollbar-thumb:hover {
+                background: #555; /* Blackish grey */
+            }
 
         .column-title {
             font-size: 24px;
@@ -130,7 +157,7 @@
          
         <div class="squareBlock" style="margin-top:10px">
         <p style="text-align:center; font-weight:bold; font-size:20px">Мої заяви</p>
-        <div style="height: 90%; overflow: auto;">
+        <div style="height: 75%; overflow-y: auto;">
             <table class="table">
                 <thead>
                     <tr>

@@ -28,9 +28,9 @@ namespace RoadEventsProject.BLL.Services
             _config = config;
         }
 
-        public async Task<List<string>> CreateApp(Event newevent, int idUser)
+        public async Task<string[]> CreateApp(Event newevent, int idUser)
         {
-            List<string> list = new();
+            string[] arr = new string[3];
             GoogleDrive googleDrive = new();
 
             RoadEvent roadEvent = new RoadEvent();
@@ -44,21 +44,21 @@ namespace RoadEventsProject.BLL.Services
 
             await _roadEventsRepositorie.AddAsync(roadEvent);
 
-            list.Add(roadEvent.IdRoadEvent.ToString());
+            arr[0] = roadEvent.IdRoadEvent.ToString();
 
             if (newevent.Photo != null)
             {
                 string fileName = $"{idUser}_{roadEvent.IdRoadEvent}";
                 string link = await googleDrive.UploadAsync(fileName, newevent.Photo, ".jpeg", "image/jpeg");
-                list.Add(link);
+                arr[1] = link;
             }
             if (newevent.Video != null)
             {
                 string fileName = $"{idUser}_{roadEvent.IdRoadEvent}";
                 string link = await googleDrive.UploadAsync(fileName, newevent.Video, ".mp4", "video/mp4");
-                list.Add(link);
+                arr[2] = link;
             }
-            return list;
+            return arr;
         }
 
 
