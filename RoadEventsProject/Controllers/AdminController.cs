@@ -194,7 +194,7 @@ namespace RoadEventsProject.Controllers
         {
             var userInfo = await _userService.GetUserById(user);
 
-            GetViewBagUserInfo(user);
+            await GetViewBagUserInfo(user);
 
             userId = userInfo.IdUser;
             Response.Cookies.Append("IdUserApplication", userInfo.IdUser.ToString());
@@ -206,7 +206,7 @@ namespace RoadEventsProject.Controllers
             int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
 
-            GetViewBagUserInfo(iduser);
+            await GetViewBagUserInfo(iduser);
 
             if (user != null)
             {
@@ -228,16 +228,18 @@ namespace RoadEventsProject.Controllers
                 await _userService.Update(user);
             }
 
-            GetViewBagUserInfo(iduser);
+            await GetViewBagUserInfo(iduser);
 
             return PartialView("_UserInfo", user);
         }
 
-        private void GetViewBagUserInfo(int userInfo)
+        private async Task GetViewBagUserInfo(int userInfo)
         {
-            ViewBag.AllApp = _roadEventsService.GetAppByUser(userInfo);
-            ViewBag.AcceptedRequests = _roadEventsService.GetAcceptedRequestsByUser(userInfo);
-            ViewBag.RejectedRequests = _roadEventsService.GetRejectedRequestsByUser(userInfo);
+            var arr = await _roadEventsService.GetAllRequestsByUser(userInfo);
+
+            ViewBag.AllApp = arr[0];
+            ViewBag.AcceptedRequests = arr[1];
+            ViewBag.RejectedRequests = arr[2];
         }
 
         private int GetIdUserCookie()

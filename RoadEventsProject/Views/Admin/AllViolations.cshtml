@@ -25,7 +25,7 @@
         .right-column {
             margin: 0;
             float: left;
-            width: 60%;
+            width: 70%;
             height: 95vh;
             background-color: white;
             color: black;
@@ -110,7 +110,7 @@
         <div class="divider"></div>
         <a asp-area="" asp-controller="Home" asp-action="Index" class="aspforms btn">ВИХІД</a>
     </div>
-    <div class="right-column" style="margin-left:10%; margin-top:10px">
+    <div class="right-column" style="margin-left:5%; margin-top:10px">
         <div>
             <form asp-action="AllViolations" method="get">
             <input type="number" name="idEvent" placeholder="Enter User ID" />
@@ -128,6 +128,12 @@
             <table class="table tableborder">
                 <thead>
                     <tr>
+                        <th class="tableborder">
+                            <p>Користувач</p>
+                        </th>
+                        <th class="tableborder">
+                            <p>Id заяви</p>
+                        </th>
                         <th class="tableborder">
                             <p>Дата</p>
                         </th>
@@ -158,6 +164,12 @@
                     @foreach (var item in Model.Violations)
                     {
                         <tr class="tableborder">
+                            <td class="tableborder">
+                                @Html.DisplayFor(modelItem => item.IdRoadEventNavigation.IdUser)
+                            </td>
+                            <td class="tableborder">
+                                @Html.DisplayFor(modelItem => item.IdRoadEvent)
+                            </td>
                             <td class="tableborder">
                                 @Html.DisplayFor(modelItem => item.DateEvent)
                             </td>

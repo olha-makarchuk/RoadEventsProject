@@ -29,6 +29,9 @@ namespace RoadEventsProject.DAL.Repositories
         {
             return await _context.Violations
                 .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                .Include(u => u.IdVehicleNavigation)
+                .Include(u => u.IdDriverNavigation)
+                .Include(u => u.IdRoadEventNavigation.IdUserNavigation)
                 .ToListAsync();
         }
 
@@ -41,7 +44,8 @@ namespace RoadEventsProject.DAL.Repositories
         }
         public async Task<List<Vehicle>> GetVehicleWithDrivers()
         {
-            return await _context.Vehicles.Include(u => u.IdDriverNavigation).ToListAsync();
+            return await _context.Vehicles.Include(u => u.IdDriverNavigation)
+                .ToListAsync();
         }
         public async Task<List<TypeViolation>> GetAllTypes()
         {

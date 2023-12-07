@@ -112,21 +112,6 @@ namespace RoadEventsProject.BLL.Services
             return _roadEventsRepositorie.Update(roadEvent);
         }
 
-        public async Task<int> GetTotalRequestsByUser(int idUser)
-        {
-            return await _roadEventsRepositorie.GetTotalRequestsByUser(idUser);
-        }
-
-        public async Task<int> GetAcceptedRequestsByUser(int idUser)
-        {
-            return await _roadEventsRepositorie.GetAcceptedRequestsByUser(idUser);
-        }
-
-        public async Task<int> GetRejectedRequestsByUser(int idUser)
-        {
-            return await _roadEventsRepositorie.GetRejectedRequestsByUser(idUser);
-        }
-
         public async Task<List<RoadEvent>> GetAppByUserAndDate(int iduser, DateTime dateTime)
         {
             return await _roadEventsRepositorie.GetAppByUserAndDate(iduser, dateTime);
@@ -150,6 +135,16 @@ namespace RoadEventsProject.BLL.Services
         public async Task<List<CityVillage>> GetCitiesVillagesByRegion(int regionId)
         {
             return await _roadEventsRepositorie.GetCitiesVillagesByRegion(regionId);
+        }
+
+        public async Task<int[]> GetAllRequestsByUser(int idUser)
+        {
+            return await _roadEventsRepositorie.GetAllRequestsByUser(idUser);
+        }
+
+        public async Task<List<RoadEvent>> GetAppByStatusUserDate(int idStatus, int idUser, DateTime dateTime)
+        {   
+            return await _roadEventsRepositorie.GetAppByStatusUserDate(idStatus, idUser, dateTime); 
         }
     }
 }

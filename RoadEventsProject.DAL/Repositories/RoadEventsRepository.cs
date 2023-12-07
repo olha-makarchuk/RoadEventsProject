@@ -33,10 +33,6 @@ namespace RoadEventsProject.DAL.Repositories
             return await _context.RoadEvents.CountAsync(r => r.IdStatus == 2);
         }
 
-        public async Task<int> GetAcceptedRequestsByUser(int idUser)
-        {
-            return await _context.RoadEvents.CountAsync(r => r.IdUser == idUser);
-        }
 
         public async Task<List<RoadEvent>> GetAllApp()
         {
@@ -74,6 +70,7 @@ namespace RoadEventsProject.DAL.Repositories
                 .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
                 .Include(u => u.IdVideoNavigation)
                 .Include(u => u.IdImageNavigation)
+                .Include(re => re.IdStatusNavigation)
                 .OrderByDescending(u => u.DateEvent)
                 .ToListAsync();
             return events;
@@ -87,6 +84,22 @@ namespace RoadEventsProject.DAL.Repositories
                 .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
                 .Include(u => u.IdVideoNavigation)
                 .Include(u => u.IdImageNavigation)
+                .Include(re => re.IdStatusNavigation)
+                .OrderByDescending(u => u.DateEvent)
+                .ToListAsync();
+            return events;
+        }
+
+        public async Task<List<RoadEvent>> GetAppByStatusUserDate(int idStatus, int idUser, DateTime dateTime)
+        {
+            var events = await _context.RoadEvents
+                .Where(u => u.IdStatus == idStatus)
+                .Where(u => u.IdUser == idUser)
+                .Where(re => re.DateEvent.Date.Equals(dateTime))
+                .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
+                .Include(u => u.IdVideoNavigation)
+                .Include(re => re.IdStatusNavigation)
+                .Include(u => u.IdImageNavigation)
                 .OrderByDescending(u => u.DateEvent)
                 .ToListAsync();
             return events;
@@ -98,6 +111,7 @@ namespace RoadEventsProject.DAL.Repositories
                 .Where(u => u.IdUser == idUser)
                 .Include(u => u.IdCityVillageNavigation.IdRegionNavigation)
                 .Include(u => u.IdVideoNavigation)
+                .Include(re => re.IdStatusNavigation)
                 .Include(u => u.IdImageNavigation)
                 .OrderByDescending(u => u.DateEvent)
                 .ToListAsync();
@@ -136,7 +150,11 @@ namespace RoadEventsProject.DAL.Repositories
 
         public async Task<int> GetRejectedRequestsByUser(int idUser)
         {
-            return await _context.RoadEvents.CountAsync(r => r.IdUser == idUser && r.IdStatus == 2);
+            return await _context.RoadEvents.Where(r => r.IdUser == idUser).CountAsync(r => r.IdStatus == 3);
+        }
+        public async Task<int> GetAcceptedRequestsByUser(int idUser)
+        {
+            return await _context.RoadEvents.Where(r => r.IdUser == idUser).CountAsync(r => r.IdStatus == 2);
         }
 
         public async Task<int> GetTotalRequests()
@@ -146,7 +164,7 @@ namespace RoadEventsProject.DAL.Repositories
 
         public async Task<int> GetTotalRequestsByUser(int idUser)
         {
-            return await _context.RoadEvents.CountAsync(r => r.IdUser == idUser && r.IdStatus == 3);
+            return await _context.RoadEvents.Where(r => r.IdUser == idUser).CountAsync();
         }
 
         public async Task<int> GetUnprocessedRequests()
@@ -161,6 +179,32 @@ namespace RoadEventsProject.DAL.Repositories
             return roadEvent;
         }
 
+        public async Task<int[]> GetAllRequestsByUser(int idUser)
+        {
+            int[] arr = new int[3];
 
+            using (var context = new RoadEventsContext())
+            {
+                var result = await _context.RoadEvents
+    .Where(r => r.IdUser == idUser)
+    .GroupBy(r => r.IdStatus)
+    .Select(g => new { Status = g.Key, Count = g.Count() })
+    .ToListAsync();
+
+                foreach (var item in result)
+                {
+                    if (item.Status == 2)
+                        arr[1] = item.Count;
+                    else if (item.Status == 3)
+                        arr[2] = item.Count;
+                    else if (item.Status == 1)
+                        arr[0] = item.Count;
+                }
+
+                arr[0] = arr[0] + arr[1] + arr[2];
+            }
+
+            return arr;
+        }
     }
 }

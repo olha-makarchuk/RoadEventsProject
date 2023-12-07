@@ -24,14 +24,12 @@ namespace RoadEventsProject.DAL.Repositories.Base
         Task<RoadEvent> AddAsync(RoadEvent roadEvent);
 
 
-        Task<int> GetTotalRequestsByUser(int idUser);
-        Task<int> GetAcceptedRequestsByUser(int idUser);
-        Task<int> GetRejectedRequestsByUser(int idUser);
-
         Task<List<RoadEvent>> GetAppByUserAndDate(int iduser, DateTime dateTime);
         Task<List<RoadEvent>> GetAppByUserWithAllDetails(int iduser);
 
         Task<List<Region>> GetAllRegions();
         Task<List<CityVillage>> GetCitiesVillagesByRegion(int regionId);
+        Task<int[]> GetAllRequestsByUser(int idUser);
+        Task<List<RoadEvent>> GetAppByStatusUserDate(int idStatus, int idUser, DateTime dateTime);
     }
 }

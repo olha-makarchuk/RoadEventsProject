@@ -24,14 +24,13 @@ namespace RoadEventsProject.BLL.Services.Base
         Task<RoadEvent> Update(RoadEvent roadEvent);
         Task<RoadEvent> AddAsync(RoadEvent roadEvent);
 
-        Task<int> GetTotalRequestsByUser(int idUser);
-        Task<int> GetAcceptedRequestsByUser(int idUser);
-        Task<int> GetRejectedRequestsByUser(int idUser);
-
         Task<List<RoadEvent>> GetAppByUserAndDate(int iduser, DateTime dateTime);
         Task<List<RoadEvent>> GetAppByUserWithAllDetails(int iduser);
         Task<List<Region>> GetAllRegions();
         Task<string[]> CreateApp(Event newevent, int idUser);
         Task<List<CityVillage>> GetCitiesVillagesByRegion(int regionId);
+
+        Task<int[]> GetAllRequestsByUser(int idUser);
+        Task<List<RoadEvent>> GetAppByStatusUserDate(int idStatus, int idUser, DateTime dateTime);
     }
 }

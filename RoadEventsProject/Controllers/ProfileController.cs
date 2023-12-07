@@ -45,7 +45,7 @@ namespace RoadEventsProject.Controllers
             var user = await _userService.GetUserById(iduser);
 
             RegisterUserModel_ userModel = new() { FirstName = user.IdNameNavigation.FirstName, MiddleName = user.IdNameNavigation.MiddleName, LastName = user.IdNameNavigation.LastName, UserName=user.LoginUser};
-            CreateViewBagAppByUserId(iduser);
+            await CreateViewBagAppByUserId(iduser);
 
             return View(userModel);
         }
@@ -57,7 +57,7 @@ namespace RoadEventsProject.Controllers
             var user = await _userService.GetUserById(iduser);
             user.LoginUser = userModel.UserName;
             await _userService.Update(user);
-            CreateViewBagAppByUserId(iduser);
+            await CreateViewBagAppByUserId(iduser);
 
             return RedirectToAction("MyProfile");
         }
@@ -120,11 +120,19 @@ namespace RoadEventsProject.Controllers
             DateTime dateTime = new(date.Year, date.Month, date.Day);
             int iduser = GetIdUserCookie();
 
-            List<RoadEvent> applications = new List<RoadEvent>(); 
-            if(date != dateEq)
+            List<RoadEvent> applications = new();
+
+            if (date != dateEq)
             {
-                applications = await _roadEventsService.GetAppByUserAndDate(iduser, dateTime);
-                
+                if(idstatus != 0)
+                {
+                    applications = await _roadEventsService.GetAppByStatusUserDate(idstatus, iduser, dateTime);
+                }
+                else
+                {
+                    applications = await _roadEventsService.GetAppByUserAndDate(iduser, dateTime);
+                }
+
                 if (applications.Count == 0)
                 {
                     ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
@@ -135,16 +143,14 @@ namespace RoadEventsProject.Controllers
                     return View(applications);
                 }
             }
+            if (idstatus != 0) 
+            {
+                applications = await _roadEventsService.GetAppByStatusAndUser(idstatus, iduser);
+            }
             else
             {
                 applications = await _roadEventsService.GetAppByUserWithAllDetails(iduser);
             }
-
-            if(date == dateEq)
-            {
-                return View(applications);
-            }
-            ModelState.AddModelError("iddateError", "Не знайдено заяв з датою (" + date + ")");
             return View(applications);
         }
 
@@ -156,11 +162,13 @@ namespace RoadEventsProject.Controllers
             return Json(cities);
         }
 
-        private async void CreateViewBagAppByUserId(int iduser)
+        private async Task CreateViewBagAppByUserId(int iduser)
         {
-            ViewBag.AllApp = await _roadEventsService.GetTotalRequestsByUser(iduser);
-            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequestsByUser(iduser);
-            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequestsByUser(iduser);
+              var arr = await _roadEventsService.GetAllRequestsByUser(iduser);
+
+            ViewBag.AllApp = arr[0];
+            ViewBag.AcceptedRequests = arr[1];
+            ViewBag.RejectedRequests = arr[2];
         }
 
         private int GetIdUserCookie()
