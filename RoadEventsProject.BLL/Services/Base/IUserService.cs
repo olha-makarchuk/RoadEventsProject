@@ -13,10 +13,9 @@ namespace RoadEventsProject.BLL.Services.Base
         Task<List<UserInfo>> GetAllUsers();
         Task<UserInfo> GetUserById(int userId);
         Task<UserInfo> Update(UserInfo user);
-        Task<UserInfo> GetUserByName(string name);
         Task<UserInfo> Register(UserModel model);
-        bool CheckPassword(LoginUserModel model, string userPass);
-
+        Task<bool[]> CheckPassword(LoginUserModel model);
+        Task ChangeLogin(int iduser, string name);
 
     }
 }

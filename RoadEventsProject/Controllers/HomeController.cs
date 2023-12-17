@@ -52,20 +52,18 @@ namespace RoadEventsProject.Controllers
                 {
                     ModelState.AddModelError(string.Empty, "Заповніть всі поля");
                 }
-                var user = await _userService.GetUserByName(model.UserName);
-                if (user != null)
+
+                var check = await _userService.CheckPassword(model);
+
+                if (check[0])
                 {
-                    var check = _userService.CheckPassword(model, user.PasswordHash);
-
-                    if (check == true)
+                    if (check[1])
                     {
-                        if (user.IdRole == 1)
+                        if (check[2])
                         {
-                            Response.Cookies.Append("MyIdCookie", user.IdUser.ToString());
-
                             return RedirectToAction("MainView", "Profile");
                         }
-                        if (user.IdRole == 2)
+                        else
                         {
                             return RedirectToAction("MainView", "Admin");
                         }

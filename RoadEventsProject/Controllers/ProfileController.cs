@@ -27,14 +27,13 @@ namespace RoadEventsProject.Controllers
 
         public async Task<IActionResult> MainView()
         {
-            ViewBag.TotalRequests = await _roadEventsService.GetTotalRequests();
-            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequests();
-            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequests();
+            var arr = await _roadEventsService.GetStatistic();
+            ViewBag.TotalRequests = arr[0];
+            ViewBag.AcceptedRequests = arr[1];
+            ViewBag.RejectedRequests = arr[2];
 
             int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
-
-            ViewBag.unprocessedCount = await _roadEventsService.GetUnprocessedRequests();
 
             return View(user);
         }
@@ -54,9 +53,7 @@ namespace RoadEventsProject.Controllers
         public async Task<IActionResult> MyProfile(RegisterUserModel_ userModel)
         {
             int iduser = GetIdUserCookie();
-            var user = await _userService.GetUserById(iduser);
-            user.LoginUser = userModel.UserName;
-            await _userService.Update(user);
+            await _userService.ChangeLogin(iduser, userModel.UserName);
             await CreateViewBagAppByUserId(iduser);
 
             return RedirectToAction("MyProfile");
@@ -124,14 +121,7 @@ namespace RoadEventsProject.Controllers
 
             if (date != dateEq)
             {
-                if(idstatus != 0)
-                {
-                    applications = await _roadEventsService.GetAppByStatusUserDate(idstatus, iduser, dateTime);
-                }
-                else
-                {
-                    applications = await _roadEventsService.GetAppByUserAndDate(iduser, dateTime);
-                }
+                applications = await _roadEventsService.GetAppByUserDateOrWithStatus(idstatus, iduser, dateTime);
 
                 if (applications.Count == 0)
                 {
@@ -143,14 +133,8 @@ namespace RoadEventsProject.Controllers
                     return View(applications);
                 }
             }
-            if (idstatus != 0) 
-            {
-                applications = await _roadEventsService.GetAppByStatusAndUser(idstatus, iduser);
-            }
-            else
-            {
-                applications = await _roadEventsService.GetAppByUserWithAllDetails(iduser);
-            }
+            applications = await _roadEventsService.GetAppByUserOrWithStatus(idstatus, iduser);
+
             return View(applications);
         }
 

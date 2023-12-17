@@ -29,6 +29,7 @@ builder.Services.AddScoped<IViolationTypesConnectedsService, ViolationTypesConne
 builder.Services.AddScoped<IPhotoVideoService, PhotoVideoService>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

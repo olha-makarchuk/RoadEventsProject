@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using RoadEventsProject.BLL.DTO;
 using RoadEventsProject.BLL.Services.Base;
 using RoadEventsProject.DAL.Entities;
 using RoadEventsProject.Models;
@@ -17,7 +18,6 @@ namespace RoadEventsProject.Controllers
         private IUserService _userService;
         private IViolationService _violationServices;
         private IViolationTypesConnectedsService _violationTypesConnectedService;
-        public int userId { get; set; }
 
         public AdminController(IConfiguration configuration, IUserService userService, IRoadEventsService roadEventsService, 
             IViolationService violationServices, IViolationTypesConnectedsService violationTypesConnectedsService)
@@ -29,11 +29,12 @@ namespace RoadEventsProject.Controllers
             _violationTypesConnectedService = violationTypesConnectedsService;
         }
 
-        public async Task<IActionResult> MainViewAsync()
+        public async Task<IActionResult> MainView()
         {
-            ViewBag.TotalRequests = await _roadEventsService.GetTotalRequests();
-            ViewBag.AcceptedRequests = await _roadEventsService.GetAcceptedRequests();
-            ViewBag.RejectedRequests = await _roadEventsService.GetRejectedRequests();
+            var arr = await _roadEventsService.GetStatistic();
+            ViewBag.TotalRequests = arr[0];
+            ViewBag.AcceptedRequests = arr[1];
+            ViewBag.RejectedRequests = arr[2];
 
             int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
@@ -50,14 +51,7 @@ namespace RoadEventsProject.Controllers
 
             if (users.Exists(u=>u.IdUser == idUser))
             {
-                if (idstatus == 0)
-                {
-                    events = await _roadEventsService.GetAppByUser(idUser);
-                }
-                else
-                {
-                    events = await _roadEventsService.GetAppByStatusAndUser(idstatus, idUser);
-                }
+                events = await _roadEventsService.GetAppByUserOrWithStatus(idstatus, idUser);
                 return View(events);
             }
             else if(idUser != 0)
@@ -65,14 +59,8 @@ namespace RoadEventsProject.Controllers
                 ModelState.AddModelError("idUserError", "Не знайдено користувачаз id ("+idUser+")");
                 return View(events);
             }
-            if (idstatus != 0)
-            {
-                events = await _roadEventsService.GetAppByStatus(idstatus);
-            }
-            else
-            {
-                events = await _roadEventsService.GetAllApp();
-            }
+            events = await _roadEventsService.GetAppByStatusOrAllApp(idstatus);
+
             return View(events);
         }
 
@@ -87,15 +75,7 @@ namespace RoadEventsProject.Controllers
                 await _roadEventsService.Update(roadEvent);
             }
 
-            var model = new ViolationAndTypesModel();
-            model.ViolationModel = new Violation();
-            model.TypesModel = await _violationServices.GetAllTypes();
-
-            model.ViolationModel.DateEvent = roadEvent.DateEvent;
-            model.ViolationModel.IdRoadEvent = roadEvent.IdRoadEvent;
-            model.ViolationModel.IdUser = roadEvent.IdUser;
-            model.ViolationModel.IdCityVillage = roadEvent.IdCityVillage;
-            model.ViolationModel.IdCityVillageNavigation = roadEvent.IdCityVillageNavigation;
+            var model = await _violationServices.CreateViolationAndTypesModel(roadEvent!);
 
             ViewBag.TypeViolation = model.TypesModel;
             ViewBag.VehiclesAll = await _violationServices.GetVehicleWithDrivers();
@@ -106,13 +86,13 @@ namespace RoadEventsProject.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateViolation(ViolationAndTypesModel model)
         {
+            int iduser = GetIdUserCookie();
+
             var vehicles = await _violationServices.GetVehicleWithDrivers();
             model.TypesModel = await _violationServices.GetAllTypes();
 
             ViewBag.TypeViolation = model.TypesModel;
             ViewBag.VehiclesAll = vehicles;
-
-            int iduser = GetIdUserCookie();
 
             if (model.ViolationModel != null)
             {
@@ -184,7 +164,6 @@ namespace RoadEventsProject.Controllers
                     return View(model);
                 }
             }
-
             model.Violations.AddRange(violations);
 
             return View(model);
@@ -193,10 +172,7 @@ namespace RoadEventsProject.Controllers
         public async Task<IActionResult> SeeUser(int user)
         {
             var userInfo = await _userService.GetUserById(user);
-
             await GetViewBagUserInfo(user);
-
-            userId = userInfo.IdUser;
             Response.Cookies.Append("IdUserApplication", userInfo.IdUser.ToString());
             return PartialView("_UserInfo", userInfo);
         }
@@ -205,7 +181,6 @@ namespace RoadEventsProject.Controllers
         {
             int iduser = GetIdUserCookie();
             var user = await _userService.GetUserById(iduser);
-
             await GetViewBagUserInfo(iduser);
 
             if (user != null)
@@ -213,7 +188,6 @@ namespace RoadEventsProject.Controllers
                 user.Blocked = true;
                 await _userService.Update(user);
             }
-
             return PartialView("_UserInfo", user);
         }
 
@@ -229,7 +203,6 @@ namespace RoadEventsProject.Controllers
             }
 
             await GetViewBagUserInfo(iduser);
-
             return PartialView("_UserInfo", user);
         }
 

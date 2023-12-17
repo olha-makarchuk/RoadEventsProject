@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RoadEventsProject.BLL.DTO;
 using RoadEventsProject.BLL.Services.Base;
 using RoadEventsProject.DAL.Entities;
 using RoadEventsProject.DAL.Repositories.Base;
@@ -21,6 +22,34 @@ namespace RoadEventsProject.BLL.Services
             _config = config;
         }
 
+        public async Task<Violation> AddAsync(Violation violation)
+        {
+            return await _violationRepository.AddAsync(violation);
+        }
+
+        public async Task<List<Vehicle>> GetVehicleWithDrivers()
+        {
+            return await _violationRepository.GetVehicleWithDrivers();
+        }
+        public async Task<List<TypeViolation>> GetAllTypes()
+        {
+            return await _violationRepository.GetAllTypes();
+        }
+
+        public async Task<ViolationAndTypesModel> CreateViolationAndTypesModel(RoadEvent roadEvent)
+        {
+            var model = new ViolationAndTypesModel();
+            model.ViolationModel = new Violation();
+            model.TypesModel = await _violationRepository.GetAllTypes();
+
+            model.ViolationModel.DateEvent = roadEvent.DateEvent;
+            model.ViolationModel.IdRoadEvent = roadEvent.IdRoadEvent;
+            model.ViolationModel.IdUser = roadEvent.IdUser;
+            model.ViolationModel.IdCityVillage = roadEvent.IdCityVillage;
+            model.ViolationModel.IdCityVillageNavigation = roadEvent.IdCityVillageNavigation;
+            return model;
+        }
+
         public async Task<List<Violation>> GetAll()
         {
             return await _violationRepository.GetAll();
@@ -29,19 +58,6 @@ namespace RoadEventsProject.BLL.Services
         public async Task<List<Violation>> GetViolationsByRoadEvent(int idEvent)
         {
             return await _violationRepository.GetViolationsByRoadEvent(idEvent);
-        }
-
-        public async Task<Violation> AddAsync(Violation violation)
-        {
-            return await _violationRepository.AddAsync(violation);
-        }
-        public async Task<List<Vehicle>> GetVehicleWithDrivers()
-        {
-            return await _violationRepository.GetVehicleWithDrivers();
-        }
-        public async Task<List<TypeViolation>> GetAllTypes()
-        {
-            return await _violationRepository.GetAllTypes();
         }
     }
 }

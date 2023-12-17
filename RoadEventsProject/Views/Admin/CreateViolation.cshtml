@@ -1,4 +1,4 @@
-﻿@model RoadEventsProject.Models.ViolationAndTypesModel
+﻿@model RoadEventsProject.BLL.DTO.ViolationAndTypesModel
 
 @{
     ViewData["Title"] = "AllApplications";
@@ -154,7 +154,6 @@
 
 <script>
     $(document).ready(function () {
-        // Hide all dropdowns initially (if not needed, remove this part)
         $('[id^=SelectedTypeIds]').hide();
     });
     

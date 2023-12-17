@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using RoadEventsProject.BLL.DTO;
 using Google.Apis.Drive.v3.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace RoadEventsProject.BLL.Services
 {
@@ -61,45 +62,14 @@ namespace RoadEventsProject.BLL.Services
             return arr;
         }
 
-
-        public async Task<int> GetAcceptedRequests()
-        {
-            return await _roadEventsRepositorie.GetAcceptedRequests();
-        }
-
-        public async Task<int> GetRejectedRequests()
-        {
-            return await _roadEventsRepositorie.GetRejectedRequests();
-        }
-
-        public async Task<int> GetTotalRequests()
-        {
-            return await _roadEventsRepositorie.GetTotalRequests();
-        }
-
         public async Task<int> GetUnprocessedRequests()
         {
             return await _roadEventsRepositorie.GetUnprocessedRequests();
         }
 
-        public async Task<List<RoadEvent>> GetAppByStatus(int idStatus)
-        {
-            return await _roadEventsRepositorie.GetAppByStatus(idStatus);
-        }
-
         public async Task<List<RoadEvent>> GetAppByUser(int idUser)
         {
             return await _roadEventsRepositorie.GetAppByUser(idUser);
-        }
-
-        public async Task<List<RoadEvent>> GetAppByStatusAndUser(int idStatus, int idUser)
-        {
-            return await _roadEventsRepositorie.GetAppByStatusAndUser(idStatus, idUser);
-        }
-
-        public async Task<List<RoadEvent>> GetAllApp()
-        {
-            return await _roadEventsRepositorie.GetAllApp();
         }
 
         public async Task<RoadEvent> GetAppById(int idUser)
@@ -110,21 +80,6 @@ namespace RoadEventsProject.BLL.Services
         public Task<RoadEvent> Update(RoadEvent roadEvent)
         {
             return _roadEventsRepositorie.Update(roadEvent);
-        }
-
-        public async Task<List<RoadEvent>> GetAppByUserAndDate(int iduser, DateTime dateTime)
-        {
-            return await _roadEventsRepositorie.GetAppByUserAndDate(iduser, dateTime);
-        }
-
-        public async Task<List<RoadEvent>> GetAppByUserWithAllDetails(int iduser)
-        {
-            return await _roadEventsRepositorie.GetAppByUserWithAllDetails(iduser);
-        }
-
-        public async Task<RoadEvent> AddAsync(RoadEvent roadEvent)
-        {
-            return await _roadEventsRepositorie.AddAsync(roadEvent);
         }
 
         public async Task<List<Region>> GetAllRegions()
@@ -142,9 +97,57 @@ namespace RoadEventsProject.BLL.Services
             return await _roadEventsRepositorie.GetAllRequestsByUser(idUser);
         }
 
-        public async Task<List<RoadEvent>> GetAppByStatusUserDate(int idStatus, int idUser, DateTime dateTime)
-        {   
-            return await _roadEventsRepositorie.GetAppByStatusUserDate(idStatus, idUser, dateTime); 
+
+        /////////////////////
+        public async Task<int[]> GetStatistic()
+        {
+            int[] arr= new int[3];
+            arr[0] = await _roadEventsRepositorie.GetTotalRequests();
+            arr[1] = await _roadEventsRepositorie.GetAcceptedRequests();
+            arr[2] = await _roadEventsRepositorie.GetRejectedRequests();
+            return arr;
+        }
+
+        public async Task<List<RoadEvent>> GetAppByUserDateOrWithStatus(int idStatus, int idUser, DateTime dateTime)
+        {
+            List<RoadEvent> applications = new();
+            if (idStatus != 0)
+            {
+                applications = await _roadEventsRepositorie.GetAppByStatusUserDate(idStatus, idUser, dateTime);
+            }
+            else
+            {
+                applications = await _roadEventsRepositorie.GetAppByUserAndDate(idUser, dateTime);
+            }
+            return applications;
+        }
+
+        public async Task<List<RoadEvent>> GetAppByUserOrWithStatus(int idStatus, int iduser)
+        {
+            List<RoadEvent> applications = new();
+            if (idStatus != 0)
+            {
+                applications = await _roadEventsRepositorie.GetAppByStatusAndUser(idStatus, iduser);
+            }
+            else
+            {
+                applications = await _roadEventsRepositorie.GetAppByUserWithAllDetails(iduser);
+            }
+            return applications;
+        }
+
+        public async Task<List<RoadEvent>> GetAppByStatusOrAllApp(int idstatus)
+        {
+            List<RoadEvent> events = new();
+            if (idstatus != 0)
+            {
+                events = await _roadEventsRepositorie.GetAppByStatus(idstatus);
+            }
+            else
+            {
+                events = await _roadEventsRepositorie.GetAllApp();
+            }
+            return events;
         }
     }
 }

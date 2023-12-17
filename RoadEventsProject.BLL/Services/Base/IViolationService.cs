@@ -1,4 +1,5 @@
-﻿using RoadEventsProject.DAL.Entities;
+﻿using RoadEventsProject.BLL.DTO;
+using RoadEventsProject.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace RoadEventsProject.BLL.Services.Base
         Task<Violation> AddAsync(Violation violation);
         Task<List<Vehicle>> GetVehicleWithDrivers();
         Task<List<TypeViolation>> GetAllTypes();
-
+        Task<ViolationAndTypesModel> CreateViolationAndTypesModel(RoadEvent roadEvent);
 
     }
 }

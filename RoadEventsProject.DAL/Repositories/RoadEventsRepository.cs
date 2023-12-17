@@ -179,6 +179,7 @@ namespace RoadEventsProject.DAL.Repositories
             return roadEvent;
         }
 
+
         public async Task<int[]> GetAllRequestsByUser(int idUser)
         {
             int[] arr = new int[3];

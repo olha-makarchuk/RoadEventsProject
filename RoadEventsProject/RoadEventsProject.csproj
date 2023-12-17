@@ -7,18 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\Uploads\Photos\1_8.jpeg" />
-    <Content Remove="wwwroot\Uploads\Photos\1_9.jpeg" />
-    <Content Remove="wwwroot\Uploads\Videos\1_8.mp4" />
-    <Content Remove="wwwroot\Uploads\Videos\1_9.mp4" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\images\2.jpg" />
-    <None Include="wwwroot\Uploads\Photos\1_8.jpeg" />
-    <None Include="wwwroot\Uploads\Photos\1_9.jpeg" />
-    <None Include="wwwroot\Uploads\Videos\1_8.mp4" />
-    <None Include="wwwroot\Uploads\Videos\1_9.mp4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,11 +21,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
     <PackageReference Include="Xabe.FFmpeg" Version="5.2.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Uploads\Videos\" />
-    <Folder Include="Uploads\Photos\" />
   </ItemGroup>
 
   <ItemGroup>
